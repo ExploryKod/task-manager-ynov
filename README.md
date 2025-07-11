@@ -28,7 +28,7 @@ Dernier test de couverture effectué :
 
 <img src="./last_couverture_test.png" alt="dernière couverture">
 
-Notes : j'ai ajouté des test pour la nouvelle fonctionnalité Excel, le rapport qui les inclu est dans le `htmlcov` à la racine (pas dans les sauvegarde), c'est le tout dernier rapport.
+Notes : j'ai ajouté des test pour la nouvelle fonctionnalité Excel, le rapport qui les inclu est dans le `htmlcov` à la racine (pas dans les sauvegarde), c'est le tout dernier rapport qui couvre aussi 95%.
 Commande make : `make open-coverage-current`
 
 ## 📋 Description
