@@ -10,7 +10,12 @@ Mes réponses aux questions de la phase 10 sur la couverture de test : voir le f
 
 Mes rapports de couvertures de test sauvegardées: <br>
 [Premier rapport avec couverture insuffisante](./rapports_couverture/premier/htmlcov/) <br>
+Pour lire ce rapport dans votre navigateur aprés le clone du repo, aller là : `<votre-chemin-de-fichier>/task-manager-ynov/rapports_couvertures/premier/htmlcov/index.html`
+Exemple sur une machine Linux : `file:///home/<votre-nom>/<chemin-depuis-dossier-utilisateur>/task-manager-ynov/rapports_couvertures/premier/htmlcov/index.html`
 [Dernier rapport avec couverture 95%](./rapports_couverture/couverture_95percent/htmlcov/)
+Pour lire ce rapport dans votre navigateur aprés le clone du repo, aller là : `<votre-chemin-de-fichier>/task-manager-ynov/rapports_couvertures/couverture_95percent/htmlcov/index.html`
+Exemple sur une machine Linux : `file:///home/<votre-nom>/<chemin-depuis-dossier-utilisateur>/task-manager-ynov/rapports_couvertures/couverture_95percent/htmlcov/index.html`
+
 
 Dernier test de couverture effectué : 
 
