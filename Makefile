@@ -20,4 +20,52 @@ clean:
 lint:
 	python -m py_compile $(find src/ -name '*.py')
 
+open-coverage-current:
+	@echo "Ouverture du rapport de couverture actuel..."
+	@if [ -f htmlcov/index.html ]; then \
+		if command -v xdg-open > /dev/null 2>&1; then \
+			xdg-open htmlcov/index.html; \
+		elif command -v open > /dev/null 2>&1; then \
+			open htmlcov/index.html; \²²
+		elif command -v start > /dev/null 2>&1; then \
+			start htmlcov/index.html; \
+		else \
+			echo "Impossible d'ouvrir le fichier. Ouvrez manuellement: htmlcov/index.html"; \
+		fi; \
+	else \
+		echo "Aucun rapport de couverture actuel trouvé. Lancez 'make coverage' d'abord."; \
+	fi
+
+open-coverage-first:
+	@echo "Ouverture du premier rapport de couverture (couverture insuffisante)..."
+	@if [ -f rapports_couvertures/premier/htmlcov/index.html ]; then \
+		if command -v xdg-open > /dev/null 2>&1; then \
+			xdg-open rapports_couvertures/premier/htmlcov/index.html; \
+		elif command -v open > /dev/null 2>&1; then \
+			open rapports_couvertures/premier/htmlcov/index.html; \
+		elif command -v start > /dev/null 2>&1; then \
+			start rapports_couvertures/premier/htmlcov/index.html; \
+		else \
+			echo "Impossible d'ouvrir le fichier. Ouvrez manuellement: rapports_couvertures/premier/htmlcov/index.html"; \
+		fi; \
+	else \
+		echo "Rapport de couverture 'premier' introuvable: rapports_couvertures/premier/htmlcov/index.html"; \
+	fi
+
+open-coverage-final:
+	@echo "Ouverture du rapport de couverture final (95%)..."
+	@if [ -f rapports_couvertures/couverture_95percent/htmlcov/index.html ]; then \
+		if command -v xdg-open > /dev/null 2>&1; then \
+			xdg-open rapports_couvertures/couverture_95percent/htmlcov/index.html; \
+		elif command -v open > /dev/null 2>&1; then \
+			open rapports_couvertures/couverture_95percent/htmlcov/index.html; \
+		elif command -v start > /dev/null 2>&1; then \
+			start rapports_couvertures/couverture_95percent/htmlcov/index.html; \
+		else \
+			echo "Impossible d'ouvrir le fichier. Ouvrez manuellement: rapports_couvertures/couverture_95percent/htmlcov/index.html"; \
+		fi; \
+	else \
+		echo "Rapport de couverture 'final' introuvable: rapports_couvertures/couverture_95percent/htmlcov/index.html"; \
+	fi
+
 all: clean install lint test coverage 
