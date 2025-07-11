@@ -104,10 +104,17 @@ A chaque cas ci-dessus on ne se contente pas de vérifier qu'il y a une erreur m
 ## Comment organiser le code pour faciliter les tests ?
 
 1. Lisibilité et compréhension
-- Respect d'un nommage cohérent qui décris bien le contexte du test
-- Couplage faible entre les composants
+- Respect d'un nommage cohérent qui décris bien le contexte du test : fonction/method testée suivi de la condition par exemple.
+Exemple : test_get_tasks_with_low_priority
+- Couplage faible entre les composants : notre architecture doit isoler ses use cases (ce qui fait sens niveau métier) afin de tester seulement des ensembles cohérents de dépendances et pouvoir découper ces ensemble aisément via des mock ou stub pour nos tests. Cela implique de bien organiser le code pour limiter les couplage fort entre composants.
 
-- Chaque test aura une structure bien apparente basé sur le AAA (Arrange Act Assert) ou Given-When-Then 
+- Chaque test aura une structure bien apparente basé sur le AAA (Arrange Act Assert) ou Given-When-Then. On prépare le test avec les données clairement puis on va tester le "system under test" (fonction, method, class ...) et enfin on va clairement obtenir un résultat (assert). Nous devons bien penser à y inclure toute information importante lors de la lecture des tests qui offrent alors aussi une documentation sur notre base de code.
+
+- Les fichiers de tests doivent être un miroir des fichiers de l'application elle-même. Il reprennent le nommage et commence par "test_". 
+- Le code doit clairement isoler et mettre en avant ses models ou entités qui sont le coeur du domaine métier (ex: Tasks, Project) afin que les tests s'appuient dessus aussi en créant des fixtures pour les reprendre par exemple.
+- De même pour tout objet complexe qui sera repris dans des fixtures: cela permet d'être indépendant du code et ainsi testé plusieurs cas sans se répété dans nos tests (respect du DRY).
+ 
+
 
 2. Maintenabilité 
 - Chaque class représente une entité cohérente et chaque méthode a ses propes responsabilités limités. On respect le single responsibility principle (SRP) au mieux.
