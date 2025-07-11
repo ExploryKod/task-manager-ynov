@@ -6,7 +6,7 @@ Mes réponses aux questions de départ sur Analyse et Conception : voir le fichi
 [cliquer ici](./AnalyseConception.md)
 
 Mes réponses aux questions de la phase 10 sur la couverture de test : voir le fichier `AnalyseCoverage.md` (à la racine)
-[cliquer ici](./AnalyseConception.md)
+[cliquer ici](./AnalyseCoverage.md)
 
 Mes rapports de couvertures de test sauvegardées: <br>
 [Premier rapport avec couverture insuffisante](./rapports_couverture/premier/htmlcov/) <br>
