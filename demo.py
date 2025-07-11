@@ -122,20 +122,20 @@ def main():
     # Afficher les tâches rechargées pour vérification
     print("\nTâches rechargées:")
     for task in manager_reload:
-        status_symbol = "✓" if task.status == Status.DONE else "○"
+        status_symbol = "FINISHED" if task.status == Status.DONE else "UNFINISHED"
         print(f"  {status_symbol} [{task.priority.name}] {task.title} - {task.status.name}")
     
     # Vérifier que les données sont identiques
     original_stats = manager.get_statistics()
     if (len(manager) == len(manager_reload) and 
         original_stats['completion_rate'] == stats_reload['completion_rate']):
-        print("\n✓ Vérification réussie: Les données ont été sauvegardées et rechargées correctement!")
+        print("\n Vérification réussie: Les données ont été sauvegardées et rechargées correctement!")
     else:
-        print("\n✗ Erreur: Les données rechargées ne correspondent pas aux données originales!")
+        print("\n Erreur: Les données rechargées ne correspondent pas aux données originales!")
     
     print()
     
-    print("Démo terminée avec succès !")
+    print("== Fin de la démonstration ==")
 
 
 if __name__ == "__main__":
