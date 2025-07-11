@@ -1,1 +1,299 @@
-{}
+{
+  "metadata": {
+    "description": "Données fake pour tests du task manager",
+    "version": "1.0",
+    "total_tasks": 12,
+    "generated_at": "2024-01-15T10:30:00.000000",
+    "test_scenarios": [
+      "tasks_with_all_statuses",
+      "tasks_with_all_priorities", 
+      "tasks_with_projects",
+      "tasks_without_projects",
+      "completed_tasks",
+      "boundary_test_cases"
+    ]
+  },
+  "tasks": [
+    {
+      "id": 1705312200.123456,
+      "title": "Développer l'API REST",
+      "description": "Implémenter les endpoints CRUD pour la gestion des tâches avec authentification JWT",
+      "priority": "high",
+      "status": "in_progress",
+      "created_at": "2024-01-15T10:30:00.123456",
+      "completed_at": null,
+      "project_id": 1705300000.001
+    },
+    {
+      "id": 1705312800.654321,
+      "title": "Rédiger la documentation",
+      "description": "Créer la documentation technique complète avec exemples d'utilisation",
+      "priority": "medium",
+      "status": "todo",
+      "created_at": "2024-01-15T10:40:00.654321",
+      "completed_at": null,
+      "project_id": 1705300000.001
+    },
+    {
+      "id": 1705313400.789012,
+      "title": "Tests unitaires",
+      "description": "Écrire une suite de tests complète avec couverture 95%+",
+      "priority": "urgent",
+      "status": "done",
+      "created_at": "2024-01-15T10:50:00.789012",
+      "completed_at": "2024-01-15T16:30:00.789012",
+      "project_id": 1705300000.001
+    },
+    {
+      "id": 1705314000.345678,
+      "title": "Révision de code",
+      "description": "Code review avec l'équipe et correction des bugs identifiés",
+      "priority": "high",
+      "status": "cancelled",
+      "created_at": "2024-01-15T11:00:00.345678",
+      "completed_at": null,
+      "project_id": 1705300000.001
+    },
+    {
+      "id": 1705314600.901234,
+      "title": "Formation équipe",
+      "description": "Organiser une session de formation sur les nouvelles pratiques TDD",
+      "priority": "low",
+      "status": "todo",
+      "created_at": "2024-01-15T11:10:00.901234",
+      "completed_at": null,
+      "project_id": 1705300000.002
+    },
+    {
+      "id": 1705315200.567890,
+      "title": "Mise en production",
+      "description": "Déploiement de l'application sur l'environnement de production",
+      "priority": "urgent",
+      "status": "done",
+      "created_at": "2024-01-15T11:20:00.567890",
+      "completed_at": "2024-01-15T17:45:00.567890",
+      "project_id": 1705300000.002
+    },
+    {
+      "id": 1705315800.123789,
+      "title": "Optimisation base de données",
+      "description": "Analyser et optimiser les requêtes SQL les plus lentes",
+      "priority": "medium",
+      "status": "in_progress",
+      "created_at": "2024-01-15T11:30:00.123789",
+      "completed_at": null,
+      "project_id": null
+    },
+    {
+      "id": 1705316400.456123,
+      "title": "Backup système",
+      "description": "Configurer les sauvegardes automatiques quotidiennes",
+      "priority": "high",
+      "status": "done",
+      "created_at": "2024-01-15T11:40:00.456123",
+      "completed_at": "2024-01-15T14:20:00.456123",
+      "project_id": null
+    },
+    {
+      "id": 1705317000.789456,
+      "title": "A",
+      "description": "",
+      "priority": "low",
+      "status": "todo",
+      "created_at": "2024-01-15T11:50:00.789456",
+      "completed_at": null,
+      "project_id": null
+    },
+    {
+      "id": 1705317600.321654,
+      "title": "Tâche avec caractères spéciaux & symboles @#$%",
+      "description": "Test avec caractères spéciaux: ñáéíóú çàè ü ß µ €",
+      "priority": "medium",
+      "status": "todo",
+      "created_at": "2024-01-15T12:00:00.321654",
+      "completed_at": null,
+      "project_id": 1705300000.003
+    },
+    {
+      "id": 1705318200.654987,
+      "title": "Tâche très ancienne",
+      "description": "Tâche créée dans le passé pour tester les cas limites temporels",
+      "priority": "low",
+      "status": "done",
+      "created_at": "2020-01-01T00:00:00.000000",
+      "completed_at": "2020-01-01T23:59:59.999999",
+      "project_id": null
+    },
+    {
+      "id": 1705318800.987321,
+      "title": "Tâche du futur",
+      "description": "Tâche avec date future pour tester la robustesse",
+      "priority": "urgent",
+      "status": "todo",
+      "created_at": "2030-12-31T23:59:59.999999",
+      "completed_at": null,
+      "project_id": 1705300000.004
+    }
+  ],
+  "test_scenarios": {
+    "empty_data": {
+      "tasks": [],
+      "metadata": {
+        "total_tasks": 0,
+        "description": "Données vides pour tester les cas de division par zéro"
+      }
+    },
+    "single_task": {
+      "tasks": [
+        {
+          "id": 1705400000.000001,
+          "title": "Tâche unique",
+          "description": "Pour tester les cas avec une seule tâche",
+          "priority": "medium",
+          "status": "todo",
+          "created_at": "2024-01-16T10:00:00.000001",
+          "completed_at": null,
+          "project_id": null
+        }
+      ]
+    },
+    "boundary_values": {
+      "titles": {
+        "min_length": "A",
+        "max_length": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "over_limit": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "empty": "",
+        "whitespace": "   ",
+        "with_html": "<script>alert('xss')</script>",
+        "unicode": "Tâche avec émojis 🚀 📝 ✅"
+      },
+      "descriptions": {
+        "empty": "",
+        "very_long": "Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue Description très longue ",
+        "with_newlines": "Ligne 1\nLigne 2\nLigne 3",
+        "with_json_chars": "Description avec \"quotes\" et {brackets} et [arrays]"
+      }
+    },
+    "invalid_data": {
+      "missing_required_fields": [
+        {
+          "title": "Tâche sans ID",
+          "priority": "medium",
+          "status": "todo"
+        },
+        {
+          "id": 1705400000.000002,
+          "priority": "medium",
+          "status": "todo"
+        }
+      ],
+      "invalid_enums": [
+        {
+          "id": 1705400000.000003,
+          "title": "Tâche avec priorité invalide",
+          "priority": "invalid_priority",
+          "status": "todo",
+          "created_at": "2024-01-16T10:00:00.000003"
+        },
+        {
+          "id": 1705400000.000004,
+          "title": "Tâche avec statut invalide",
+          "priority": "medium",
+          "status": "invalid_status",
+          "created_at": "2024-01-16T10:00:00.000004"
+        }
+      ]
+    }
+  },
+  "statistics_test_data": {
+    "completion_rates": {
+      "zero_percent": {
+        "total_tasks": 5,
+        "completed_tasks": 0,
+        "expected_rate": 0.0
+      },
+      "fifty_percent": {
+        "total_tasks": 4,
+        "completed_tasks": 2,
+        "expected_rate": 50.0
+      },
+      "hundred_percent": {
+        "total_tasks": 3,
+        "completed_tasks": 3,
+        "expected_rate": 100.0
+      }
+    },
+    "priority_distribution": {
+      "low": 3,
+      "medium": 4,
+      "high": 3,
+      "urgent": 2
+    },
+    "status_distribution": {
+      "todo": 4,
+      "in_progress": 2,
+      "done": 4,
+      "cancelled": 1
+    }
+  },
+  "email_test_data": {
+    "valid_emails": [
+      "user@example.com",
+      "test.user+tag@domain.org",
+      "simple@test.fr",
+      "a@b.co",
+      "long.email.address@very-long-domain-name.com"
+    ],
+    "invalid_emails": [
+      {
+        "email": "invalid-email",
+        "error": "missing_at"
+      },
+      {
+        "email": "user@",
+        "error": "missing_domain"
+      },
+      {
+        "email": "@domain.com",
+        "error": "missing_local"
+      },
+      {
+        "email": "user@domain",
+        "error": "missing_extension"
+      },
+      {
+        "email": "user space@domain.com",
+        "error": "invalid_chars"
+      }
+    ]
+  },
+  "performance_test_data": {
+    "large_dataset": {
+      "description": "Données pour tests de performance",
+      "task_count": 1000,
+      "note": "Générer programmatiquement 1000 tâches pour les tests de performance"
+    }
+  },
+  "integration_test_scenarios": {
+    "complete_workflow": {
+      "description": "Scénario complet : création → modification → completion → sauvegarde",
+      "steps": [
+        "create_task",
+        "update_priority",
+        "mark_completed",
+        "save_to_file",
+        "load_from_file",
+        "verify_integrity"
+      ]
+    },
+    "error_recovery": {
+      "description": "Tests de récupération d'erreur",
+      "scenarios": [
+        "corrupted_json_file",
+        "permission_denied",
+        "disk_full",
+        "invalid_file_format"
+      ]
+    }
+  }
+}
