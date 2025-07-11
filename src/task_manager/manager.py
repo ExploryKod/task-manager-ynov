@@ -240,5 +240,34 @@ class TaskManager:
     def __iter__(self):
         return iter(self._tasks)
 
+    def export_tasks(self, filename: str, format_type: str = 'json', 
+                     include_statistics: bool = True) -> bool:
+        """
+        Exporter les tâches vers différents formats
+        
+        Args:
+            filename: Nom du fichier de sortie
+            format_type: Format d'export ('json', 'xml', 'xlsx', 'excel')
+            include_statistics: Inclure les statistiques dans l'export
+            
+        Returns:
+            bool: True si l'export a réussi
+        """
+        from .services import ExportService
+        
+        export_service = ExportService()
+        return export_service.export_tasks(
+            self._tasks, 
+            filename, 
+            format_type, 
+            include_statistics
+        )
+    
+    def get_export_formats(self) -> List[str]:
+        """Retourne la liste des formats d'export supportés"""
+        from .services import ExportService
+        export_service = ExportService()
+        return export_service.get_supported_formats()
+
     def __repr__(self) -> str:
         return f"TaskManager(tasks={len(self._tasks)}, storage='{self._storage_file}')"

@@ -1,6 +1,14 @@
-# TODO: Listez les dépendances
-# Production (aucune pour ce projet)
-# Développement
-pytest>=7.0.0
-pytest-cov>=4.0.0
-pytest-mock>=3.0.0
+# Dépendances de production
+lxml==6.0.0
+openpyxl==3.1.5
+et_xmlfile==2.0.0
+
+# Dépendances de développement et tests
+coverage==7.9.2
+iniconfig==2.1.0
+packaging==25.0
+pluggy==1.6.0
+Pygments==2.19.2
+pytest==8.4.1
+pytest-cov==6.2.1
+pytest-mock==3.14.1

@@ -68,4 +68,24 @@ open-coverage-final:
 		echo "Rapport de couverture 'final' introuvable: rapports_couvertures/couverture_95percent/htmlcov/index.html"; \
 	fi
 
+demo-export:
+	python demo_export_simple.py
+
+run-demo-export: demo-export
+
+help:
+	@echo "Commandes disponibles:"
+	@echo "  install              - Installer les dépendances"
+	@echo "  test                 - Lancer tous les tests"
+	@echo "  test-unit            - Lancer les tests unitaires"
+	@echo "  test-integration     - Lancer les tests d'intégration"
+	@echo "  coverage             - Générer le rapport de couverture"
+	@echo "  demo-export          - Démonstration de l'export multi-format"
+	@echo "  open-coverage-current - Ouvrir le rapport de couverture actuel"
+	@echo "  open-coverage-first  - Ouvrir le premier rapport (couverture insuffisante)"
+	@echo "  open-coverage-final  - Ouvrir le rapport final (95%)"
+	@echo "  clean                - Nettoyer les fichiers temporaires"
+	@echo "  lint                 - Vérifier la syntaxe Python"
+	@echo "  all                  - Exécuter clean, install, lint, test et coverage"
+
 all: clean install lint test coverage 

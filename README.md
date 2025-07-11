@@ -111,6 +111,46 @@ Tâche URGENT ajoutée (ID: 1752230487.414)
 ✓ Vérification réussie: Les données ont été sauvegardées et rechargées correctement!
 ```
 
+### 📤 Export multi-format
+
+Le TaskManager supporte l'export vers plusieurs formats :
+
+```bash
+python demo_export_simple.py
+# ou avec make
+make demo-export
+```
+
+#### Utilisation programmatique :
+
+```python
+from src.task_manager.manager import TaskManager
+from src.task_manager.task import Priority
+
+# Créer un gestionnaire avec des tâches
+manager = TaskManager("my_tasks.json")
+manager.add_task("Tâche importante", "Description", Priority.HIGH)
+
+# Export vers JSON avec statistiques
+manager.export_tasks("rapport.json", "json", include_statistics=True)
+
+# Export vers XML
+manager.export_tasks("rapport.xml", "xml", include_statistics=True)
+
+# Export vers Excel
+manager.export_tasks("rapport.xlsx", "xlsx", include_statistics=True)
+
+# Voir les formats supportés
+formats = manager.get_export_formats()
+print(formats)  # ['json', 'xml', 'xlsx', 'excel']
+```
+
+#### Formats de sortie :
+
+- **JSON** : Structure complète avec métadonnées et statistiques
+- **XML** : Format standard avec validation et hiérarchie claire
+- **Excel** : Deux onglets (Tasks + Statistics) avec formatage professionnel
+
 ## 🧪 Tests
 
 ### Lancer tous les tests
@@ -143,20 +183,30 @@ task-manager-ynov/
 │       ├── __init__.py
 │       ├── task.py          # Classe Task et énumérations
 │       ├── manager.py       # Gestionnaire principal
-│       └── services.py      # Services (Email, Rapports)
+│       └── services.py      # Services (Email, Rapports, Export)
 ├── tests/
 │   ├── __init__.py
 │   ├── conftest.py          # Configuration des tests
 │   ├── test_task.py         # Tests de la classe Task
 │   ├── test_task_manager.py # Tests du gestionnaire
 │   └── test_services.py     # Tests des services
-├── demo.py                  # Script de démonstration
-├── requirements.txt         # Dépendances
+├── demo.py                  # Script de démonstration original
+├── demo_export.py           # Démonstration complète de l'export
+├── demo_export_simple.py    # Exemple simple d'export
+├── Makefile                 # Commandes automatisées
+├── requirements.txt         # Dépendances (openpyxl, lxml)
 ├── pytest.ini             # Configuration pytest
 └── README.md               # Ce fichier
 ```
 
 ## ⚙️ Fonctionnalités principales
+
+### 📤 Export multi-format
+- **JSON** : Export structuré avec métadonnées
+- **XML** : Format standard avec validation
+- **Excel** : Fichiers .xlsx avec onglets séparés (Tasks + Statistics)
+- **Statistiques incluses** : Optionnel dans tous les formats
+- **Historique des exports** : Suivi des opérations d'export
 
 ### Gestion des tâches
 - Création avec titre, description et priorité
@@ -179,6 +229,7 @@ task-manager-ynov/
 ### Services
 - **EmailService** : Notifications par email
 - **ReportService** : Génération de rapports
+- **ExportService** : Export vers différents formats
 
 ## 🔧 Configuration
 
