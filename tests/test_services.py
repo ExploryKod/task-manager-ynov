@@ -10,6 +10,7 @@ from src.task_manager.services import EmailService, ReportService, ExportService
 from src.task_manager.task import Task, Priority, Status
 
 
+@pytest.mark.unit
 class TestEmailService:
     """Tests du service email avec mocks"""
 
@@ -153,6 +154,7 @@ class TestEmailService:
                 self.email_service.send_task_reminder(email, "Task", datetime.now())
 
 
+@pytest.mark.unit
 class TestReportService:
     """Tests du service de rapports"""
 
@@ -330,6 +332,7 @@ class TestReportService:
         assert summary["exportable"] == expected_exportable
 
 
+@pytest.mark.unit
 class TestExportService:
     """Tests du service d'export multi-format"""
 
@@ -723,3 +726,141 @@ class TestExportService:
         email_service = EmailService()
         with pytest.raises(TypeError, match="Email must be a string"):
             email_service.send_completion_notification([], "Task title")
+
+
+@pytest.mark.integration
+class TestExportServiceRealFiles:
+    """Tests d'intégration - création réelle de fichiers"""
+    
+    def setup_method(self):
+        """Fixture : environnement de test"""
+        self.temp_dir = tempfile.mkdtemp()
+        self.export_service = ExportService()
+        
+        # Créer des tâches de test
+        self.test_tasks = [
+            Task("Tâche 1", "Description 1", Priority.HIGH),
+            Task("Tâche 2", "Description 2", Priority.MEDIUM),
+            Task("Tâche 3", "Description 3", Priority.LOW)
+        ]
+        self.test_tasks[0].mark_completed()  # Marquer la première comme terminée
+    
+    def teardown_method(self):
+        """Nettoyage"""
+        for file in os.listdir(self.temp_dir):
+            os.unlink(os.path.join(self.temp_dir, file))
+        os.rmdir(self.temp_dir)
+    
+    def test_real_json_export_creates_valid_file(self):
+        """Test intégration : export JSON réel"""
+        json_file = os.path.join(self.temp_dir, 'real_export.json')
+        
+        result = self.export_service.export_tasks(
+            tasks=self.test_tasks,
+            filename=json_file,
+            format_type='json',
+            include_statistics=True
+        )
+        
+        assert result is True
+        assert os.path.exists(json_file)
+        
+        # Vérifier le contenu
+        with open(json_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        assert 'tasks' in data
+        assert 'statistics' in data
+        assert len(data['tasks']) == 3
+        assert data['statistics']['total_tasks'] == 3
+        assert data['statistics']['completed_tasks'] == 1
+        assert data['statistics']['completion_rate'] == 33.33
+    
+    def test_real_xml_export_creates_valid_file(self):
+        """Test intégration : export XML réel"""
+        xml_file = os.path.join(self.temp_dir, 'real_export.xml')
+        
+        result = self.export_service.export_tasks(
+            tasks=self.test_tasks,
+            filename=xml_file,
+            format_type='xml',
+            include_statistics=True
+        )
+        
+        assert result is True
+        assert os.path.exists(xml_file)
+        
+        # Vérifier que le fichier n'est pas vide
+        assert os.path.getsize(xml_file) > 0
+        
+        # Vérifier la structure XML basique
+        with open(xml_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        assert '<TaskManagerExport>' in content
+        assert '<Task id=' in content
+        assert '<Statistics>' in content
+        assert 'Tâche 1' in content
+    
+    def test_real_excel_export_creates_valid_file(self):
+        """Test intégration : export Excel réel"""
+        try:
+            import openpyxl
+            
+            xlsx_file = os.path.join(self.temp_dir, 'real_export.xlsx')
+            
+            result = self.export_service.export_tasks(
+                tasks=self.test_tasks,
+                filename=xlsx_file,
+                format_type='xlsx',
+                include_statistics=True
+            )
+            
+            assert result is True
+            assert os.path.exists(xlsx_file)
+            
+            # Vérifier que le fichier n'est pas vide
+            assert os.path.getsize(xlsx_file) > 0
+            
+            # Vérifier la structure Excel
+            workbook = openpyxl.load_workbook(xlsx_file)
+            assert 'Tasks' in workbook.sheetnames
+            assert 'Statistics' in workbook.sheetnames
+            
+            # Vérifier le contenu de la feuille Tasks
+            tasks_sheet = workbook['Tasks']
+            assert tasks_sheet.cell(row=1, column=1).value == 'ID'
+            assert tasks_sheet.cell(row=1, column=2).value == 'Title'
+            assert tasks_sheet.cell(row=2, column=2).value == 'Tâche 1'
+            
+        except ImportError:
+            pytest.skip("openpyxl not available")
+    
+    def test_export_history_tracking_with_real_files(self):
+        """Test intégration : suivi de l'historique d'export"""
+        # Exports vers plusieurs formats
+        json_file = os.path.join(self.temp_dir, 'history_test.json')
+        xml_file = os.path.join(self.temp_dir, 'history_test.xml')
+        
+        # Premier export
+        self.export_service.export_tasks(self.test_tasks, json_file, 'json')
+        
+        # Deuxième export
+        self.export_service.export_tasks(self.test_tasks, xml_file, 'xml')
+        
+        # Vérifier l'historique
+        history = self.export_service.get_export_history()
+        assert len(history) == 2
+        
+        # Vérifier les détails de l'historique
+        json_export = next(h for h in history if h['format'] == 'json')
+        xml_export = next(h for h in history if h['format'] == 'xml')
+        
+        assert json_export['filename'] == json_file
+        assert xml_export['filename'] == xml_file
+        assert json_export['success'] is True
+        assert xml_export['success'] is True
+        
+        # Vérifier que les fichiers existent
+        assert os.path.exists(json_file)
+        assert os.path.exists(xml_file)

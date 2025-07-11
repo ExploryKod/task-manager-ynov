@@ -7,6 +7,7 @@ from src.task_manager.manager import TaskManager
 from src.task_manager.task import Task, Priority, Status
 
 
+@pytest.mark.unit
 class TestTaskManagerBasics:
     """Tests basiques du gestionnaire"""
 
@@ -102,6 +103,7 @@ class TestTaskManagerBasics:
         assert result is False
 
 
+@pytest.mark.unit
 class TestTaskManagerFiltering:
     """Tests de filtrage des tâches"""
 
@@ -166,6 +168,7 @@ class TestTaskManagerFiltering:
             self.manager.get_tasks_by_priority("high")
 
 
+@pytest.mark.unit  
 class TestTaskManagerPersistence:
     """Tests de sauvegarde/chargement avec mocks"""
 
@@ -280,6 +283,7 @@ class TestTaskManagerPersistence:
             self.manager.load_from_file("invalid.json")
 
 
+@pytest.mark.unit
 class TestTaskManagerStatistics:
     """Tests de génération de statistiques"""
 
@@ -379,6 +383,7 @@ class TestTaskManagerStatistics:
         assert stats["completion_rate"] == expected_rate
 
 
+@pytest.mark.unit
 class TestTaskManagerPersistenceAdvanced:
     """Tests avancés de persistence pour améliorer la couverture"""
 
@@ -442,6 +447,7 @@ class TestTaskManagerPersistenceAdvanced:
             self.manager.save_to_file("error.json")
 
 
+@pytest.mark.unit
 class TestTaskManagerUtilityMethods:
     """Tests des méthodes utilitaires pour améliorer la couverture"""
 
@@ -543,6 +549,7 @@ class TestTaskManagerUtilityMethods:
         assert isinstance(parsed_time, datetime)
 
 
+@pytest.mark.unit
 class TestTaskManagerEdgeCases:
     """Tests des cas limites et validations d'erreur"""
 
@@ -590,6 +597,7 @@ class TestTaskManagerEdgeCases:
             pytest.fail("OSError should be silently ignored in _validate_json_file_limits")
 
 
+@pytest.mark.unit
 class TestTaskManagerStorageValidation:
     """Tests de validation du stockage"""
 
@@ -642,6 +650,7 @@ class TestTaskManagerStorageValidation:
             pytest.fail("Should only count .json files for limit validation")
 
 
+@pytest.mark.unit
 class TestTaskManagerExport:
     """Tests des fonctionnalités d'export du TaskManager"""
 
@@ -789,3 +798,202 @@ class TestTaskManagerExport:
         mock_export.return_value = False
         result = self.manager.export_tasks("test_failure.json")
         assert result is False
+
+
+@pytest.mark.integration
+class TestTaskManagerRealFileOperations:
+    """Tests d'intégration - opérations réelles sur fichiers"""
+    
+    def setup_method(self):
+        """Fixture : fichier temporaire réel"""
+        self.temp_dir = tempfile.mkdtemp()
+        self.temp_file = os.path.join(self.temp_dir, 'test_tasks.json')
+        self.manager = TaskManager(self.temp_file)
+    
+    def teardown_method(self):
+        """Nettoyage fichiers temporaires"""
+        # Supprimer tous les fichiers du répertoire temporaire
+        for file in os.listdir(self.temp_dir):
+            file_path = os.path.join(self.temp_dir, file)
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        # Supprimer le répertoire
+        os.rmdir(self.temp_dir)
+    
+    def test_full_save_and_load_cycle_should_preserve_all_data(self):
+        """Test intégration complet : sauvegarde et rechargement"""
+        # Ajouter des tâches avec différentes priorités et statuts
+        task1_id = self.manager.add_task("Tâche urgente", "Description urgente", Priority.URGENT)
+        task2_id = self.manager.add_task("Tâche normale", "Description normale", Priority.MEDIUM)
+        task3_id = self.manager.add_task("Tâche basse", "Description basse", Priority.LOW)
+        
+        # Marquer une tâche comme terminée
+        task1 = self.manager.get_task(task1_id)
+        task1.mark_completed()
+        
+        # Sauvegarder
+        self.manager.save_to_file(self.temp_file)
+        
+        # Créer nouveau gestionnaire et charger
+        new_manager = TaskManager(self.temp_file)
+        new_manager.load_from_file(self.temp_file)
+        
+        # Vérifier que toutes les données sont préservées
+        assert len(new_manager.get_all_tasks()) == 3
+        
+        loaded_task1 = new_manager.get_task(task1_id)
+        loaded_task2 = new_manager.get_task(task2_id)
+        loaded_task3 = new_manager.get_task(task3_id)
+        
+        assert loaded_task1.title == "Tâche urgente"
+        assert loaded_task1.priority == Priority.URGENT
+        assert loaded_task1.status == Status.DONE
+        
+        assert loaded_task2.title == "Tâche normale"
+        assert loaded_task2.priority == Priority.MEDIUM
+        assert loaded_task2.status == Status.TODO
+        
+        assert loaded_task3.title == "Tâche basse"
+        assert loaded_task3.priority == Priority.LOW
+        assert loaded_task3.status == Status.TODO
+    
+    def test_export_and_verify_real_json_file(self):
+        """Test intégration : export JSON réel"""
+        # Créer des tâches
+        self.manager.add_task("Export test 1", "Description 1", Priority.HIGH)
+        self.manager.add_task("Export test 2", "Description 2", Priority.LOW)
+        
+        # Export vers fichier réel
+        export_file = os.path.join(self.temp_dir, 'export_test.json')
+        result = self.manager.export_tasks(export_file, 'json', include_statistics=True)
+        
+        assert result is True
+        assert os.path.exists(export_file)
+        
+        # Vérifier le contenu du fichier
+        with open(export_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        assert 'tasks' in data
+        assert 'statistics' in data
+        assert len(data['tasks']) == 2
+        assert data['statistics']['total_tasks'] == 2
+        assert data['statistics']['completion_rate'] == 0.0
+    
+    def test_concurrent_manager_access_same_file(self):
+        """Test intégration : accès concurrent au même fichier"""
+        # Premier gestionnaire ajoute des tâches
+        task1_id = self.manager.add_task("Tâche 1", "Description 1", Priority.HIGH)
+        self.manager.save_to_file(self.temp_file)
+        
+        # Deuxième gestionnaire charge et ajoute des tâches
+        manager2 = TaskManager(self.temp_file)
+        manager2.load_from_file(self.temp_file)
+        task2_id = manager2.add_task("Tâche 2", "Description 2", Priority.LOW)
+        
+        # Vérifier que les deux gestionnaires ont accès aux bonnes données
+        assert len(self.manager.get_all_tasks()) == 1
+        assert len(manager2.get_all_tasks()) == 2
+        
+        # Sauvegarder le second gestionnaire
+        manager2.save_to_file(self.temp_file)
+        
+        # Recharger le premier gestionnaire
+        self.manager.load_from_file(self.temp_file)
+        assert len(self.manager.get_all_tasks()) == 2
+
+
+@pytest.mark.integration
+class TestTaskManagerWorkflows:
+    """Tests d'intégration - workflows complets"""
+    
+    def setup_method(self):
+        """Fixture : environnement de test"""
+        self.temp_dir = tempfile.mkdtemp()
+        self.manager = TaskManager(os.path.join(self.temp_dir, 'workflow_test.json'))
+    
+    def teardown_method(self):
+        """Nettoyage"""
+        for file in os.listdir(self.temp_dir):
+            os.unlink(os.path.join(self.temp_dir, file))
+        os.rmdir(self.temp_dir)
+    
+    def test_complete_project_workflow(self):
+        """Test workflow complet d'un projet"""
+        # 1. Créer un projet avec plusieurs tâches
+        project_tasks = [
+            ("Analyse des besoins", "Définir les fonctionnalités", Priority.HIGH),
+            ("Développement", "Coder l'application", Priority.MEDIUM),
+            ("Tests", "Tester l'application", Priority.MEDIUM),
+            ("Déploiement", "Mettre en production", Priority.LOW)
+        ]
+        
+        task_ids = []
+        for title, desc, priority in project_tasks:
+            task_id = self.manager.add_task(title, desc, priority)
+            task_ids.append(task_id)
+        
+        # 2. Simuler l'avancement du projet
+        # Terminer l'analyse
+        self.manager.get_task(task_ids[0]).mark_completed()
+        
+        # Vérifier les statistiques à mi-parcours
+        stats = self.manager.get_statistics()
+        assert stats['total_tasks'] == 4
+        assert stats['completed_tasks'] == 1
+        assert stats['completion_rate'] == 25.0
+        
+        # 3. Continuer le projet
+        self.manager.get_task(task_ids[1]).mark_completed()
+        self.manager.get_task(task_ids[2]).mark_completed()
+        
+        # 4. Export du rapport d'avancement
+        json_file = os.path.join(self.temp_dir, 'project_report.json')
+        xml_file = os.path.join(self.temp_dir, 'project_report.xml')
+        
+        self.manager.export_tasks(json_file, 'json', include_statistics=True)
+        self.manager.export_tasks(xml_file, 'xml', include_statistics=True)
+        
+        # Vérifier que les fichiers sont créés
+        assert os.path.exists(json_file)
+        assert os.path.exists(xml_file)
+        
+        # 5. Finaliser le projet
+        self.manager.get_task(task_ids[3]).mark_completed()
+        
+        # Vérifier la completion finale
+        final_stats = self.manager.get_statistics()
+        assert final_stats['completion_rate'] == 100.0
+        assert final_stats['status_distribution']['done'] == 4
+        assert final_stats['status_distribution']['todo'] == 0
+    
+    def test_multi_format_export_integration(self):
+        """Test intégration : export vers plusieurs formats"""
+        # Créer un dataset de test complet
+        priorities = [Priority.URGENT, Priority.HIGH, Priority.MEDIUM, Priority.LOW]
+        for i, priority in enumerate(priorities):
+            task_id = self.manager.add_task(f"Task {i+1}", f"Description {i+1}", priority)
+            if i < 2:  # Marquer les 2 premières comme terminées
+                self.manager.get_task(task_id).mark_completed()
+        
+        # Export vers tous les formats supportés
+        formats = self.manager.get_export_formats()
+        export_files = {}
+        
+        for fmt in formats:
+            if fmt == 'excel':
+                continue  # Skip excel alias
+            filename = os.path.join(self.temp_dir, f'export_test.{fmt}')
+            result = self.manager.export_tasks(filename, fmt, include_statistics=True)
+            assert result is True
+            assert os.path.exists(filename)
+            export_files[fmt] = filename
+        
+        # Vérifier que tous les formats ont été créés
+        assert 'json' in export_files
+        assert 'xml' in export_files
+        assert 'xlsx' in export_files
+        
+        # Vérifier la taille des fichiers (doivent contenir des données)
+        for fmt, filepath in export_files.items():
+            assert os.path.getsize(filepath) > 0

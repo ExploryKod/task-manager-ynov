@@ -1,8 +1,9 @@
 import pytest
-from datetime import datetime
+from datetime import datetime, timedelta
 from src.task_manager.task import Task, Priority, Status
 
 
+@pytest.mark.unit
 class TestTaskCreation:
     """Tests de création de tâches"""
 
@@ -83,6 +84,7 @@ class TestTaskCreation:
         assert task.description == "Description avec espaces"
 
 
+@pytest.mark.unit
 class TestTaskOperations:
     """Tests des opérations sur les tâches"""
 
@@ -150,6 +152,7 @@ class TestTaskOperations:
         assert self.task.priority == priority
 
 
+@pytest.mark.unit
 class TestTaskSerialization:
     """Tests de sérialisation JSON"""
 
