@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from typing import Optional, Dict, Any
-from uuid import UUID, uuid4
+import time
 import re
 
 
@@ -40,14 +40,14 @@ class Task:
         self._validate_title(title)
         self._validate_priority(priority)
         
-        self.id: UUID = uuid4()
+        self.id: float = time.time()
         self.title: str = title.strip()
         self.description: str = description.strip()
         self.priority: Priority = priority
         self.created_at: datetime = datetime.now()
         self.status: Status = Status.TODO
         self.completed_at: Optional[datetime] = None
-        self.project_id: Optional[UUID] = None
+        self.project_id: Optional[float] = None
     
     def mark_completed(self) -> None:
         if self.status == Status.DONE:
@@ -65,22 +65,22 @@ class Task:
         
         self.priority = new_priority
     
-    def assign_to_project(self, project_id: UUID) -> None:
-        if not isinstance(project_id, UUID):
-            raise TypeError(f"Project ID must be a UUID, got {type(project_id)}")
+    def assign_to_project(self, project_id: float) -> None:
+        if not isinstance(project_id, (int, float)):
+            raise TypeError(f"Project ID must be a number, got {type(project_id)}")
         
-        self.project_id = project_id
+        self.project_id = float(project_id)
     
     def to_dict(self) -> Dict[str, Any]:
         return {
-            "id": str(self.id),
+            "id": self.id,
             "title": self.title,
             "description": self.description,
             "priority": self.priority.value,
             "status": self.status.value,
             "created_at": self.created_at.isoformat(),
             "completed_at": self.completed_at.isoformat() if self.completed_at else None,
-            "project_id": str(self.project_id) if self.project_id else None
+            "project_id": self.project_id if self.project_id else None
         }
     
     @classmethod
@@ -95,11 +95,20 @@ class Task:
         
         task = cls.__new__(cls)
         
-        task.id = UUID(data["id"])
+        task.id = float(data["id"])
         task.title = data["title"]
         task.description = data.get("description", "")
-        task.priority = Priority(data["priority"])
-        task.status = Status(data["status"])
+        
+        try:
+            task.priority = Priority[data["priority"].upper()]
+        except KeyError:
+            raise ValueError(f"Invalid priority: {data['priority']}")
+        
+        try:
+            task.status = Status[data["status"].upper()]
+        except KeyError:
+            raise ValueError(f"Invalid status: {data['status']}")
+        
         task.created_at = datetime.fromisoformat(data["created_at"])
         
         task.completed_at = (
@@ -108,11 +117,7 @@ class Task:
             else None
         )
         
-        task.project_id = (
-            UUID(data["project_id"]) 
-            if data.get("project_id") 
-            else None
-        )
+        task.project_id = float(data["project_id"]) if data.get("project_id") else None
         
         return task
     
