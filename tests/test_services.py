@@ -3,7 +3,10 @@ from unittest.mock import patch, Mock, mock_open
 from datetime import datetime, timedelta
 import csv
 import io
-from src.task_manager.services import EmailService, ReportService
+import json
+import os
+import tempfile
+from src.task_manager.services import EmailService, ReportService, ExportService
 from src.task_manager.task import Task, Priority, Status
 
 
@@ -325,3 +328,398 @@ class TestReportService:
         summary = self.report_service.get_export_summary(tasks)
         
         assert summary["exportable"] == expected_exportable
+
+
+class TestExportService:
+    """Tests du service d'export multi-format"""
+
+    def setup_method(self):
+        self.export_service = ExportService()
+        self.sample_tasks = self._create_sample_tasks()
+        self.temp_dir = tempfile.mkdtemp()
+
+    def teardown_method(self):
+        """Nettoyer les fichiers temporaires après chaque test"""
+        import shutil
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
+
+    def _create_sample_tasks(self):
+        """Créer tâches échantillon pour tests"""
+        tasks = []
+        
+        task1 = Task("Export Task 1", "Description export 1", Priority.HIGH)
+        tasks.append(task1)
+        
+        task2 = Task("Export Task 2", "Description export 2", Priority.MEDIUM)
+        task2.mark_completed()
+        tasks.append(task2)
+        
+        task3 = Task("Export Task 3", "Description export 3", Priority.LOW)
+        task3.status = Status.IN_PROGRESS
+        tasks.append(task3)
+        
+        return tasks
+
+    def _get_temp_file_path(self, filename):
+        """Obtenir chemin fichier temporaire"""
+        return os.path.join(self.temp_dir, filename)
+
+    def test_init_should_initialize_export_service(self):
+        """Test initialisation service d'export"""
+        service = ExportService()
+        
+        assert service.export_history == []
+        assert service.SUPPORTED_FORMATS == ['json', 'xml', 'xlsx', 'excel']
+
+    def test_get_supported_formats_should_return_format_list(self):
+        """Test récupération formats supportés"""
+        formats = self.export_service.get_supported_formats()
+        
+        expected_formats = ['json', 'xml', 'xlsx', 'excel']
+        assert formats == expected_formats
+
+    def test_is_format_supported_should_validate_formats(self):
+        """Test validation formats supportés"""
+        assert self.export_service.is_format_supported('json') is True
+        assert self.export_service.is_format_supported('xml') is True
+        assert self.export_service.is_format_supported('xlsx') is True
+        assert self.export_service.is_format_supported('excel') is True
+        assert self.export_service.is_format_supported('pdf') is False
+        assert self.export_service.is_format_supported('csv') is False
+
+    def test_export_tasks_json_with_valid_data_should_succeed(self):
+        """Test export JSON avec données valides"""
+        filename = self._get_temp_file_path("test_export.json")
+        
+        result = self.export_service.export_tasks(
+            self.sample_tasks, filename, "json", include_statistics=True
+        )
+        
+        assert result is True
+        assert os.path.exists(filename)
+
+    def test_export_tasks_json_should_create_valid_json_structure(self):
+        """Test export JSON crée structure JSON valide"""
+        filename = self._get_temp_file_path("test_structure.json")
+        
+        self.export_service.export_tasks(
+            self.sample_tasks, filename, "json", include_statistics=True
+        )
+        
+        with open(filename, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+        
+        assert "tasks" in data
+        assert "metadata" in data
+        assert "statistics" in data
+        assert len(data["tasks"]) == 3
+        assert data["metadata"]["total_tasks"] == 3
+        assert data["metadata"]["export_format"] == "json"
+
+    def test_export_tasks_json_without_statistics_should_exclude_stats(self):
+        """Test export JSON sans statistiques exclut stats"""
+        filename = self._get_temp_file_path("test_no_stats.json")
+        
+        self.export_service.export_tasks(
+            self.sample_tasks, filename, "json", include_statistics=False
+        )
+        
+        with open(filename, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+        
+        assert "statistics" not in data
+        assert data["metadata"]["include_statistics"] is False
+
+    def test_export_tasks_xml_with_valid_data_should_succeed(self):
+        """Test export XML avec données valides"""
+        filename = self._get_temp_file_path("test_export.xml")
+        
+        result = self.export_service.export_tasks(
+            self.sample_tasks, filename, "xml", include_statistics=True
+        )
+        
+        assert result is True
+        assert os.path.exists(filename)
+
+    def test_export_tasks_xml_should_create_valid_xml_structure(self):
+        """Test export XML crée structure XML valide"""
+        filename = self._get_temp_file_path("test_structure.xml")
+        
+        self.export_service.export_tasks(
+            self.sample_tasks, filename, "xml", include_statistics=True
+        )
+        
+        # Vérifier que le fichier XML est lisible
+        import xml.etree.ElementTree as ET
+        tree = ET.parse(filename)
+        root = tree.getroot()
+        
+        assert root.tag == "TaskManagerExport"
+        assert root.find("Metadata") is not None
+        assert root.find("Tasks") is not None
+        assert root.find("Statistics") is not None
+        
+        tasks_element = root.find("Tasks")
+        task_elements = tasks_element.findall("Task")
+        assert len(task_elements) == 3
+
+    def test_export_tasks_xml_without_statistics_should_exclude_stats(self):
+        """Test export XML sans statistiques exclut stats"""
+        filename = self._get_temp_file_path("test_xml_no_stats.xml")
+        
+        self.export_service.export_tasks(
+            self.sample_tasks, filename, "xml", include_statistics=False
+        )
+        
+        import xml.etree.ElementTree as ET
+        tree = ET.parse(filename)
+        root = tree.getroot()
+        
+        assert root.find("Statistics") is None
+        metadata = root.find("Metadata")
+        include_stats = metadata.find("IncludeStatistics")
+        assert include_stats.text == "False"
+
+    @pytest.mark.skipif(
+        not hasattr(ExportService, '_export_excel') or 
+        'openpyxl' not in str(ExportService._export_excel.__code__.co_names),
+        reason="openpyxl not available"
+    )
+    def test_export_tasks_excel_with_valid_data_should_succeed(self):
+        """Test export Excel avec données valides"""
+        filename = self._get_temp_file_path("test_export.xlsx")
+        
+        result = self.export_service.export_tasks(
+            self.sample_tasks, filename, "xlsx", include_statistics=True
+        )
+        
+        assert result is True
+        assert os.path.exists(filename)
+
+    @pytest.mark.skipif(
+        not hasattr(ExportService, '_export_excel') or 
+        'openpyxl' not in str(ExportService._export_excel.__code__.co_names),
+        reason="openpyxl not available"
+    )
+    def test_export_tasks_excel_should_create_workbook_with_sheets(self):
+        """Test export Excel crée classeur avec feuilles"""
+        filename = self._get_temp_file_path("test_workbook.xlsx")
+        
+        self.export_service.export_tasks(
+            self.sample_tasks, filename, "xlsx", include_statistics=True
+        )
+        
+        try:
+            import openpyxl
+            wb = openpyxl.load_workbook(filename)
+            
+            assert "Tasks" in wb.sheetnames
+            assert "Statistics" in wb.sheetnames
+            
+            tasks_sheet = wb["Tasks"]
+            # Vérifier les en-têtes
+            assert tasks_sheet.cell(row=1, column=1).value == "ID"
+            assert tasks_sheet.cell(row=1, column=2).value == "Title"
+            
+            # Vérifier les données (3 tâches + 1 ligne d'en-tête = 4 lignes)
+            assert tasks_sheet.max_row == 4
+        except ImportError:
+            pytest.skip("openpyxl not available for verification")
+
+    def test_export_tasks_with_empty_tasks_list_should_succeed(self):
+        """Test export avec liste tâches vide devrait réussir"""
+        filename = self._get_temp_file_path("test_empty.json")
+        
+        result = self.export_service.export_tasks(
+            [], filename, "json", include_statistics=True
+        )
+        
+        assert result is True
+        assert os.path.exists(filename)
+
+    def test_export_tasks_with_invalid_tasks_type_should_raise_error(self):
+        """Test export avec type tâches invalide lève erreur"""
+        filename = self._get_temp_file_path("test_invalid.json")
+        
+        with pytest.raises(TypeError, match="Tasks must be a list"):
+            self.export_service.export_tasks("invalid", filename, "json")
+
+    def test_export_tasks_with_empty_filename_should_raise_error(self):
+        """Test export avec nom fichier vide lève erreur"""
+        with pytest.raises(ValueError, match="Filename cannot be empty"):
+            self.export_service.export_tasks(self.sample_tasks, "", "json")
+
+    def test_export_tasks_with_invalid_format_should_raise_error(self):
+        """Test export avec format invalide lève erreur"""
+        filename = self._get_temp_file_path("test_invalid_format.txt")
+        
+        with pytest.raises(ValueError, match="Unsupported format.*pdf"):
+            self.export_service.export_tasks(self.sample_tasks, filename, "pdf")
+
+    def test_export_tasks_should_add_extension_if_missing(self):
+        """Test export ajoute extension si manquante"""
+        filename_base = self._get_temp_file_path("test_no_ext")
+        
+        self.export_service.export_tasks(
+            self.sample_tasks, filename_base, "json"
+        )
+        
+        expected_filename = filename_base + ".json"
+        assert os.path.exists(expected_filename)
+
+    def test_export_tasks_should_detect_format_from_extension(self):
+        """Test export détecte format depuis extension"""
+        filename = self._get_temp_file_path("test_auto_format.xml")
+        
+        result = self.export_service.export_tasks(
+            self.sample_tasks, filename, "json"  # Format spécifié JSON mais extension XML
+        )
+        
+        assert result is True
+        # Devrait créer un fichier XML basé sur l'extension
+        import xml.etree.ElementTree as ET
+        tree = ET.parse(filename)
+        assert tree.getroot().tag == "TaskManagerExport"
+
+    def test_export_tasks_should_record_export_history(self):
+        """Test export enregistre historique"""
+        filename = self._get_temp_file_path("test_history.json")
+        
+        self.export_service.export_tasks(
+            self.sample_tasks, filename, "json", include_statistics=True
+        )
+        
+        history = self.export_service.get_export_history()
+        assert len(history) == 1
+        
+        export_record = history[0]
+        assert export_record["filename"].endswith("test_history.json")
+        assert export_record["format"] == "json"
+        assert export_record["task_count"] == 3
+        assert export_record["include_statistics"] is True
+        assert export_record["success"] is True
+        assert "exported_at" in export_record
+
+    def test_export_tasks_should_record_failed_exports_in_history(self):
+        """Test export enregistre échecs dans historique"""
+        # Forcer une erreur en utilisant un répertoire inexistant
+        invalid_filename = "/invalid/path/test_failure.json"
+        
+        with pytest.raises(Exception):
+            self.export_service.export_tasks(
+                self.sample_tasks, invalid_filename, "json"
+            )
+        
+        history = self.export_service.get_export_history()
+        assert len(history) == 1
+        
+        export_record = history[0]
+        assert export_record["success"] is False
+        assert "error" in export_record
+
+    def test_get_export_history_should_return_copy(self):
+        """Test récupération historique retourne copie"""
+        filename = self._get_temp_file_path("test_copy.json")
+        
+        self.export_service.export_tasks(
+            self.sample_tasks, filename, "json"
+        )
+        
+        history = self.export_service.get_export_history()
+        history.clear()
+        
+        # L'historique original ne devrait pas être affecté
+        original_history = self.export_service.get_export_history()
+        assert len(original_history) == 1
+
+    def test_clear_export_history_should_empty_history(self):
+        """Test nettoyage historique vide l'historique"""
+        filename = self._get_temp_file_path("test_clear.json")
+        
+        self.export_service.export_tasks(
+            self.sample_tasks, filename, "json"
+        )
+        
+        self.export_service.clear_export_history()
+        
+        history = self.export_service.get_export_history()
+        assert len(history) == 0
+
+    @pytest.mark.parametrize("format_type,expected_format", [
+        ("json", "json"),
+        ("JSON", "json"),
+        ("xml", "xml"),
+        ("XML", "xml"),
+        ("xlsx", "xlsx"),
+        ("XLSX", "xlsx"),
+        ("excel", "xlsx"),
+        ("EXCEL", "xlsx"),
+    ])
+    def test_export_tasks_should_handle_case_insensitive_formats(self, format_type, expected_format):
+        """Test export gère formats insensibles à la casse"""
+        filename = self._get_temp_file_path(f"test_case_{format_type}.{expected_format}")
+        
+        result = self.export_service.export_tasks(
+            self.sample_tasks, filename, format_type
+        )
+        
+        assert result is True
+        
+        history = self.export_service.get_export_history()
+        assert history[-1]["format"] == expected_format
+
+    def test_generate_export_statistics_should_calculate_correctly(self):
+        """Test génération statistiques export calcule correctement"""
+        stats = self.export_service._generate_export_statistics(self.sample_tasks)
+        
+        assert stats["total_tasks"] == 3
+        assert stats["completed_tasks"] == 1
+        assert stats["pending_tasks"] == 1
+        assert stats["in_progress_tasks"] == 1
+        assert stats["cancelled_tasks"] == 0
+        assert stats["completion_rate"] == 33.33
+        
+        assert stats["priority_distribution"]["high"] == 1
+        assert stats["priority_distribution"]["medium"] == 1
+        assert stats["priority_distribution"]["low"] == 1
+        assert stats["priority_distribution"]["urgent"] == 0
+        
+        assert stats["status_distribution"]["todo"] == 1
+        assert stats["status_distribution"]["in_progress"] == 1
+        assert stats["status_distribution"]["done"] == 1
+        assert stats["status_distribution"]["cancelled"] == 0
+
+    def test_export_excel_without_openpyxl_should_raise_import_error(self):
+        """Test export Excel sans openpyxl lève ImportError"""
+        filename = self._get_temp_file_path("test_no_openpyxl.xlsx")
+        
+        # Simuler l'absence d'openpyxl
+        with patch('src.task_manager.services.OPENPYXL_AVAILABLE', False):
+            with pytest.raises(ImportError, match="openpyxl library is required"):
+                self.export_service.export_tasks(
+                    self.sample_tasks, filename, "xlsx"
+                )
+
+    def test_send_task_reminder_with_non_string_task_title_should_raise_error(self):
+        """Test envoi rappel avec titre non-string lève erreur"""
+        email_service = EmailService()
+        with pytest.raises(TypeError, match="Task title must be a string"):
+            email_service.send_task_reminder("user@domain.com", 123, datetime.now())
+
+    def test_send_completion_notification_with_non_string_task_title_should_raise_error(self):
+        """Test notification completion avec titre non-string lève erreur"""
+        email_service = EmailService()
+        with pytest.raises(TypeError, match="Task title must be a string"):
+            email_service.send_completion_notification("user@domain.com", None)
+
+    def test_send_task_reminder_with_non_string_email_should_raise_error(self):
+        """Test envoi rappel avec email non-string lève erreur"""
+        email_service = EmailService()
+        with pytest.raises(TypeError, match="Email must be a string"):
+            email_service.send_task_reminder(123, "Task title", datetime.now())
+
+    def test_send_completion_notification_with_non_string_email_should_raise_error(self):
+        """Test notification completion avec email non-string lève erreur"""
+        email_service = EmailService()
+        with pytest.raises(TypeError, match="Email must be a string"):
+            email_service.send_completion_notification([], "Task title")
