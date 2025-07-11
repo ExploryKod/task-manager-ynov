@@ -1,6 +1,6 @@
 # TaskManager YNOV
 
-Projet final pour le cours de Méthodologie des Tests - Un gestionnaire de tâches robuste développé avec Python et une couverture de tests complète.
+Projet final pour le cours de Méthodologie des Tests - Un gestionnaire de tâches robuste développé avec Python et une couverture de tests de 95%.
 
 ## 📋 Description
 
