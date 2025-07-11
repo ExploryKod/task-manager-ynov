@@ -14,14 +14,14 @@ Mes rapports de couvertures de test sauvegardées: <br>
 
 Commande Make pour lire ce rapport : `make open-coverage-first`
 
-Pour lire ce rapport dans votre navigateur aprés le clone du repo, aller là : `<votre-chemin-de-fichier>/task-manager-ynov/rapports_couvertures/premier/htmlcov/index.html`
+Pour lire ce rapport dans votre navigateur aprés le clone du repo, aller là :<br> `<votre-chemin-de-fichier>/task-manager-ynov/rapports_couvertures/premier/htmlcov/index.html`<br><br>
 Exemple sur une machine Linux : `file:///home/<votre-nom>/<chemin-depuis-dossier-utilisateur>/task-manager-ynov/rapports_couvertures/premier/htmlcov/index.html`
 
 [Dernier rapport avec couverture 95%](./rapports_couverture/couverture_95percent/htmlcov/)
 
 Commande Make pour lire ce rapport : `make open-coverage-final`
 
-Pour lire ce rapport dans votre navigateur aprés le clone du repo, aller là : `<votre-chemin-de-fichier>/task-manager-ynov/rapports_couvertures/couverture_95percent/htmlcov/index.html`
+Pour lire ce rapport dans votre navigateur aprés le clone du repo, aller là :<br> `<votre-chemin-de-fichier>/task-manager-ynov/rapports_couvertures/couverture_95percent/htmlcov/index.html`<br><br>
 Exemple sur une machine Linux : `file:///home/<votre-nom>/<chemin-depuis-dossier-utilisateur>/task-manager-ynov/rapports_couvertures/couverture_95percent/htmlcov/index.html`
 
 Dernier test de couverture effectué : 
