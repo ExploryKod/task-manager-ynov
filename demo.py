@@ -8,7 +8,7 @@ from src.task_manager.services import EmailService
 
 
 def main():
-    print("=== Démonstration TaskManager ===\n")
+print("=== Démonstration TaskManager ===\n")
     
     # TODO 1: Créez un gestionnaire
     print("1. Création du gestionnaire de tâches...")
@@ -139,4 +139,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+main()
