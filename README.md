@@ -24,9 +24,6 @@ Commande Make pour lire ce rapport : `make open-coverage-final`
 Pour lire ce rapport dans votre navigateur aprés le clone du repo, aller là : `<votre-chemin-de-fichier>/task-manager-ynov/rapports_couvertures/couverture_95percent/htmlcov/index.html`
 Exemple sur une machine Linux : `file:///home/<votre-nom>/<chemin-depuis-dossier-utilisateur>/task-manager-ynov/rapports_couvertures/couverture_95percent/htmlcov/index.html`
 
-
-
-
 Dernier test de couverture effectué : 
 
 <img src="./last_couverture_test.png" alt="dernière couverture">
