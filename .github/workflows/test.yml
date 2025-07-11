@@ -1,0 +1,19 @@
+name: Tests et Qualité
+on: [push, pull_request]
+jobs:
+test:
+runs-on: ubuntu-latest
+strategy:
+matrix:
+python-version: [3.8, 3.9, "3.10", "3.11"]
+steps:
+- uses: actions/checkout@v3
+- name: Setup Python ${{ matrix.python-version }}
+uses: actions/setup-python@v4
+with:
+python-version: ${{ matrix.python-version }}
+# TODO: Étape installation dépendances
+# TODO: Étape tests unitaires
+# TODO: Étape tests d'intégration
+# TODO: Étape couverture de code
+# TODO: Upload des résultats vers Codecov (optionnel)
