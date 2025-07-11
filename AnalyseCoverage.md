@@ -5,16 +5,16 @@ A ce stade nous avons suivi les consignes dans les TODO et implémenter les test
 Nous avons lancé la commande de couverture : 
 `pytest --cov=src/task_manager --cov-report=html --cov-report=term-missing`
 
-Lien vers le rapport : 
-
-Démarrer le projet et aller sur votre navigateur en copiant cette ligne à mettre à jour : 
-
-Commit : a51b603b85e612a61b7f2bad01407b16a3eeaad8
+Commit de ce coverage : a51b603b85e612a61b7f2bad01407b16a3eeaad8
 
 Les questions : 
 - Quelles lignes ne sont pas testées ?
 - Quels cas d'erreur manquent ?
 - Y a-t-il du code mort ?
+
+Voici l'état des lieux quand nous avons fait la première couverture de test : 
+
+<img src="./couverture_test_premier_phase.png">
 
 Nous ne repérons pas de code mort mis à part du code commenté que nous gardons pour l'instant.
 
