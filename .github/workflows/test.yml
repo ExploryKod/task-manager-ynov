@@ -1,19 +1,78 @@
 name: Tests et Qualité
+
 on: [push, pull_request]
+
 jobs:
-test:
-runs-on: ubuntu-latest
-strategy:
-matrix:
-python-version: [3.8, 3.9, "3.10", "3.11"]
-steps:
-- uses: actions/checkout@v3
-- name: Setup Python ${{ matrix.python-version }}
-uses: actions/setup-python@v4
-with:
-python-version: ${{ matrix.python-version }}
-# TODO: Étape installation dépendances
-# TODO: Étape tests unitaires
-# TODO: Étape tests d'intégration
-# TODO: Étape couverture de code
-# TODO: Upload des résultats vers Codecov (optionnel)
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, "3.10", "3.11"]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Installation des dépendances
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -e .
+    
+    - name: Tests unitaires
+      run: |
+        pytest tests/ -v --tb=short
+    
+    - name: Tests d'intégration
+      run: |
+        pytest tests/ -v --tb=short -m "not slow"
+    
+    - name: Couverture de code
+      run: |
+        pytest --cov=src/task_manager --cov-report=xml --cov-report=term-missing --cov-fail-under=85
+    
+    - name: Upload couverture vers Codecov
+      uses: codecov/codecov-action@v3
+      if: matrix.python-version == '3.11'
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+    
+    - name: Installation outils qualité
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 black isort mypy
+        pip install -r requirements.txt
+    
+    - name: Vérification formatage avec Black
+      run: |
+        black --check src/ tests/
+    
+    - name: Vérification imports avec isort
+      run: |
+        isort --check-only src/ tests/
+    
+    - name: Analyse statique avec flake8
+      run: |
+        flake8 src/ tests/ --max-line-length=88 --extend-ignore=E203,W503
+    
+    - name: Vérification types avec mypy
+      run: |
+        mypy src/ --ignore-missing-imports
+      continue-on-error: true
