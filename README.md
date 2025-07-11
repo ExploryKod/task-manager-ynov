@@ -5,7 +5,7 @@ Projet final pour le cours de Méthodologie des Tests - Un gestionnaire de tâch
 Mes réponses aux questions de départ sur Analyse et Conception : voir le fichier `AnalyseConception.md` (à la racine)
 [cliquer ici](./AnalyseConception.md)
 
-Mes réponses aux questions de la phase 10 sur la couverture de test : voir le fichier `AnalyseConception.md` (à la racine)
+Mes réponses aux questions de la phase 10 sur la couverture de test : voir le fichier `AnalyseCoverage.md` (à la racine)
 [cliquer ici](./AnalyseConception.md)
 
 Mes rapports de couvertures de test sauvegardées: <br>
