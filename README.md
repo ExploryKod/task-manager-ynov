@@ -94,7 +94,7 @@ python demo.py
 2. **Ajout de tâches** - Crée 4 tâches avec différentes priorités
 3. **Marquage terminé** - Marque 2 tâches comme terminées
 4. **Affichage des statistiques** - Montre les statistiques complètes
-5. **Sauvegarde** - Enregistre les données dans `demo_tasks.json`
+5. **Sauvegarde** - Enregistre les données dans `demo_task_reports/json/demo_tasks.json`
 6. **Rechargement** - Vérifie que les données sont correctement restaurées
 
 ### Exemple de sortie :
@@ -147,9 +147,19 @@ print(formats)  # ['json', 'xml', 'xlsx', 'excel']
 
 #### Formats de sortie :
 
-- **JSON** : Structure complète avec métadonnées et statistiques
-- **XML** : Format standard avec validation et hiérarchie claire
-- **Excel** : Deux onglets (Tasks + Statistics) avec formatage professionnel
+- **JSON** : Structure complète avec métadonnées et statistiques → `demo_task_reports/json/`
+- **XML** : Format standard avec validation et hiérarchie claire → `demo_task_reports/xml/`
+- **Excel** : Deux onglets (Tasks + Statistics) avec formatage professionnel → `demo_task_reports/xlsx/`
+
+#### Organisation des fichiers
+
+Les rapports sont automatiquement organisés dans des dossiers dédiés :
+```
+demo_task_reports/
+├── json/    # Fichiers JSON (.json)
+├── xml/     # Fichiers XML (.xml)
+└── xlsx/    # Fichiers Excel (.xlsx)
+```
 
 ## 🧪 Tests
 
@@ -190,6 +200,11 @@ task-manager-ynov/
 │   ├── test_task.py         # Tests de la classe Task
 │   ├── test_task_manager.py # Tests du gestionnaire
 │   └── test_services.py     # Tests des services
+├── demo_task_reports/       # Rapports générés (organisés par format)
+│   ├── json/                # Exports JSON
+│   ├── xml/                 # Exports XML
+│   ├── xlsx/                # Exports Excel
+│   └── README.md           # Documentation des rapports
 ├── demo.py                  # Script de démonstration original
 ├── demo_export.py           # Démonstration complète de l'export
 ├── demo_export_simple.py    # Exemple simple d'export

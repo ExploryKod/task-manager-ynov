@@ -10,7 +10,7 @@ def main():
     
     # 1. Créer un gestionnaire avec des tâches
     print("1. Création de tâches d'exemple...")
-    manager = TaskManager("example_tasks.json")
+    manager = TaskManager("demo_task_reports/json/example_tasks.json")
     
     # Ajouter quelques tâches
     manager.add_task("Développer nouvelle fonctionnalité", "Implémenter l'export multi-format", Priority.HIGH)
@@ -30,21 +30,21 @@ def main():
     
     # Export JSON avec statistiques
     try:
-        success = manager.export_tasks("rapport_tasks.json", "json", include_statistics=True)
+        success = manager.export_tasks("demo_task_reports/json/rapport_tasks.json", "json", include_statistics=True)
         print(f"✓ Export JSON: {'Réussi' if success else 'Échoué'}")
     except Exception as e:
         print(f"✗ Export JSON: Erreur - {e}")
     
     # Export XML avec statistiques
     try:
-        success = manager.export_tasks("rapport_tasks.xml", "xml", include_statistics=True)
+        success = manager.export_tasks("demo_task_reports/xml/rapport_tasks.xml", "xml", include_statistics=True)
         print(f"✓ Export XML: {'Réussi' if success else 'Échoué'}")
     except Exception as e:
         print(f"✗ Export XML: Erreur - {e}")
     
     # Export Excel avec statistiques
     try:
-        success = manager.export_tasks("rapport_tasks.xlsx", "xlsx", include_statistics=True)
+        success = manager.export_tasks("demo_task_reports/xlsx/rapport_tasks.xlsx", "xlsx", include_statistics=True)
         print(f"✓ Export Excel: {'Réussi' if success else 'Échoué'}")
     except Exception as e:
         print(f"✗ Export Excel: Erreur - {e}")
@@ -57,9 +57,14 @@ def main():
     
     print("\n=== Exemple terminé ===")
     print("Fichiers créés:")
-    print("  - rapport_tasks.json (JSON avec statistiques)")
-    print("  - rapport_tasks.xml (XML avec statistiques)")
-    print("  - rapport_tasks.xlsx (Excel avec onglets Tasks et Statistics)")
+    print("  - demo_task_reports/json/rapport_tasks.json (JSON avec statistiques)")
+    print("  - demo_task_reports/xml/rapport_tasks.xml (XML avec statistiques)")
+    print("  - demo_task_reports/xlsx/rapport_tasks.xlsx (Excel avec onglets Tasks et Statistics)")
+    print("\nStructure des dossiers:")
+    print("  demo_task_reports/")
+    print("  ├── json/    (Rapports JSON)")
+    print("  ├── xml/     (Rapports XML)")
+    print("  └── xlsx/    (Rapports Excel)")
 
 if __name__ == "__main__":
     main() 

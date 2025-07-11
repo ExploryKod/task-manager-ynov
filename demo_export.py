@@ -13,7 +13,7 @@ def main():
     
     # Créer un gestionnaire avec des tâches de démonstration
     print("1. Création du gestionnaire et ajout de tâches de démonstration...")
-    manager = TaskManager("demo_export_data.json")
+    manager = TaskManager("demo_task_reports/json/demo_export_data.json")
     
     # Ajouter des tâches de test
     task_ids = []
@@ -82,13 +82,13 @@ def main():
     try:
         success = export_service.export_tasks(
             tasks, 
-            "export_demo_tasks.json", 
+            "demo_task_reports/json/export_demo_tasks.json", 
             "json", 
             include_statistics=True
         )
         if success:
-            file_size = os.path.getsize("export_demo_tasks.json")
-            print(f"✓ Export JSON réussi: export_demo_tasks.json ({file_size} octets)")
+            file_size = os.path.getsize("demo_task_reports/json/export_demo_tasks.json")
+            print(f"✓ Export JSON réussi: demo_task_reports/json/export_demo_tasks.json ({file_size} octets)")
         else:
             print("✗ Échec de l'export JSON")
     except Exception as e:
@@ -100,13 +100,13 @@ def main():
     try:
         success = export_service.export_tasks(
             tasks, 
-            "export_demo_tasks.xml", 
+            "demo_task_reports/xml/export_demo_tasks.xml", 
             "xml", 
             include_statistics=True
         )
         if success:
-            file_size = os.path.getsize("export_demo_tasks.xml")
-            print(f"✓ Export XML réussi: export_demo_tasks.xml ({file_size} octets)")
+            file_size = os.path.getsize("demo_task_reports/xml/export_demo_tasks.xml")
+            print(f"✓ Export XML réussi: demo_task_reports/xml/export_demo_tasks.xml ({file_size} octets)")
         else:
             print("✗ Échec de l'export XML")
     except Exception as e:
@@ -118,13 +118,13 @@ def main():
     try:
         success = export_service.export_tasks(
             tasks, 
-            "export_demo_tasks.xlsx", 
+            "demo_task_reports/xlsx/export_demo_tasks.xlsx", 
             "xlsx", 
             include_statistics=True
         )
         if success:
-            file_size = os.path.getsize("export_demo_tasks.xlsx")
-            print(f"✓ Export Excel réussi: export_demo_tasks.xlsx ({file_size} octets)")
+            file_size = os.path.getsize("demo_task_reports/xlsx/export_demo_tasks.xlsx")
+            print(f"✓ Export Excel réussi: demo_task_reports/xlsx/export_demo_tasks.xlsx ({file_size} octets)")
             print("  - Feuille 'Tasks' avec toutes les tâches")
             print("  - Feuille 'Statistics' avec les statistiques")
         else:
@@ -141,13 +141,13 @@ def main():
     try:
         success = export_service.export_tasks(
             tasks, 
-            "export_demo_tasks_no_stats.json", 
+            "demo_task_reports/json/export_demo_tasks_no_stats.json", 
             "json", 
             include_statistics=False
         )
         if success:
-            file_size = os.path.getsize("export_demo_tasks_no_stats.json")
-            print(f"✓ Export JSON sans statistiques réussi: export_demo_tasks_no_stats.json ({file_size} octets)")
+            file_size = os.path.getsize("demo_task_reports/json/export_demo_tasks_no_stats.json")
+            print(f"✓ Export JSON sans statistiques réussi: demo_task_reports/json/export_demo_tasks_no_stats.json ({file_size} octets)")
         else:
             print("✗ Échec de l'export JSON sans statistiques")
     except Exception as e:
@@ -171,10 +171,10 @@ def main():
     # Résumé des fichiers créés
     print("8. Résumé des fichiers créés:")
     export_files = [
-        "export_demo_tasks.json",
-        "export_demo_tasks.xml", 
-        "export_demo_tasks.xlsx",
-        "export_demo_tasks_no_stats.json"
+        "demo_task_reports/json/export_demo_tasks.json",
+        "demo_task_reports/xml/export_demo_tasks.xml", 
+        "demo_task_reports/xlsx/export_demo_tasks.xlsx",
+        "demo_task_reports/json/export_demo_tasks_no_stats.json"
     ]
     
     for filename in export_files:
@@ -195,10 +195,21 @@ def main():
     print()
     print("=== Démonstration terminée ===")
     print()
+    print("Structure des fichiers créés:")
+    print("demo_task_reports/")
+    print("├── json/")
+    print("│   ├── demo_export_data.json")
+    print("│   ├── export_demo_tasks.json") 
+    print("│   └── export_demo_tasks_no_stats.json")
+    print("├── xml/")
+    print("│   └── export_demo_tasks.xml")
+    print("└── xlsx/")
+    print("    └── export_demo_tasks.xlsx")
+    print()
     print("Pour ouvrir les fichiers exportés:")
-    print("- JSON: cat export_demo_tasks.json")
-    print("- XML: cat export_demo_tasks.xml")
-    print("- Excel: libreoffice export_demo_tasks.xlsx")
+    print("- JSON: cat demo_task_reports/json/export_demo_tasks.json")
+    print("- XML: cat demo_task_reports/xml/export_demo_tasks.xml")
+    print("- Excel: libreoffice demo_task_reports/xlsx/export_demo_tasks.xlsx")
     print()
 
 

@@ -12,7 +12,7 @@ def main():
     
     # TODO 1: Créez un gestionnaire
     print("1. Création du gestionnaire de tâches...")
-    manager = TaskManager("demo_tasks.json")
+    manager = TaskManager("demo_task_reports/json/demo_tasks.json")
     print(f"Gestionnaire créé avec stockage: {manager._storage_file}")
     print()
     
@@ -108,7 +108,7 @@ def main():
     print("6. Rechargement et vérification des données...")
     
     # Créer un nouveau gestionnaire qui charge depuis le fichier
-    manager_reload = TaskManager("demo_tasks.json")
+    manager_reload = TaskManager("demo_task_reports/json/demo_tasks.json")
     manager_reload.load_from_file()  # Charger explicitement les données
     print(f"Nouveau gestionnaire créé et chargé depuis: {manager_reload._storage_file}")
     
