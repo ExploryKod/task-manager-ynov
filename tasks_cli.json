@@ -1,0 +1,18 @@
+{
+  "tasks": [
+    {
+      "id": 1752239326.9696288,
+      "title": "Tester l'interface CLI",
+      "description": "Vérifier toutes les fonctionnalités",
+      "priority": "high",
+      "status": "todo",
+      "created_at": "2025-07-11T15:08:46.969634",
+      "completed_at": null,
+      "project_id": null
+    }
+  ],
+  "metadata": {
+    "total_tasks": 1,
+    "saved_at": "2025-07-11T15:08:46.969728"
+  }
+}

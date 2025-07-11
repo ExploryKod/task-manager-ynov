@@ -80,15 +80,82 @@ pip install -r requirements.txt
 python -m pytest tests/ -v
 ```
 
-## 🎯 Lancement de la démonstration
+## 🎯 Utilisation
+
+### 🖥️ Interface en ligne de commande (CLI)
+
+Le TaskManager inclut une interface CLI complète avec couleurs et symboles :
+
+```bash
+python cli.py --help
+```
+
+#### Commandes principales :
+
+**Ajouter une tâche :**
+```bash
+python cli.py add "Titre de la tâche" "Description optionnelle" --priority high
+# ou avec make
+make cli-add-task
+```
+
+**Lister les tâches :**
+```bash
+python cli.py list
+python cli.py list --status todo
+python cli.py list --priority urgent --limit 5
+```
+
+**Marquer comme terminée :**
+```bash
+python cli.py complete 1234.567
+```
+
+**Supprimer une tâche :**
+```bash
+python cli.py delete 1234.567
+```
+
+**Afficher les statistiques :**
+```bash
+python cli.py stats
+# ou avec make
+make cli-stats
+```
+
+**Mode interactif :**
+```bash
+python cli.py interactive
+# ou avec make
+make cli-interactive
+```
+
+#### Exemple d'utilisation CLI :
+```bash
+# Ajouter une tâche urgente
+python cli.py add "Corriger bug critique" "Bug sur le serveur principal" --priority urgent
+
+# Lister les tâches urgentes
+python cli.py list --priority urgent
+
+# Marquer comme terminée
+python cli.py complete 1234.567
+
+# Voir les statistiques
+python cli.py stats
+```
+
+### 🎬 Démonstration
 
 Une fois l'installation terminée, vous pouvez lancer la démonstration interactive :
 
 ```bash
 python demo.py
+# ou avec make
+make demo
 ```
 
-### Ce que fait la démonstration :
+#### Ce que fait la démonstration :
 
 1. **Création du gestionnaire** - Initialise un TaskManager
 2. **Ajout de tâches** - Crée 4 tâches avec différentes priorités
@@ -97,7 +164,7 @@ python demo.py
 5. **Sauvegarde** - Enregistre les données dans `demo_tasks.json`
 6. **Rechargement** - Vérifie que les données sont correctement restaurées
 
-### Exemple de sortie :
+#### Exemple de sortie :
 ```
 === Démonstration TaskManager ===
 
@@ -150,13 +217,23 @@ task-manager-ynov/
 │   ├── test_task.py         # Tests de la classe Task
 │   ├── test_task_manager.py # Tests du gestionnaire
 │   └── test_services.py     # Tests des services
+├── cli.py                   # Interface en ligne de commande
 ├── demo.py                  # Script de démonstration
+├── Makefile                 # Commandes automatisées
 ├── requirements.txt         # Dépendances
 ├── pytest.ini             # Configuration pytest
 └── README.md               # Ce fichier
 ```
 
 ## ⚙️ Fonctionnalités principales
+
+### 🖥️ Interface en ligne de commande (CLI)
+- **Commandes intuitives** : `add`, `list`, `complete`, `delete`, `stats`
+- **Filtres avancés** : Par priorité, statut, avec limites
+- **Affichage coloré** : Codes couleurs pour priorités et statuts
+- **Mode interactif** : Shell intégré avec auto-complétion
+- **Sauvegarde/Chargement** : Gestion de fichiers multiples
+- **Aide intégrée** : `--help` pour chaque commande
 
 ### Gestion des tâches
 - Création avec titre, description et priorité
