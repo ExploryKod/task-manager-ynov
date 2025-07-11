@@ -47,3 +47,5 @@ demo_task_reports/xlsx/*.xlsx
 test_*.json
 test_*.xml
 test_*.xlsx
+
+!htmlcov/
