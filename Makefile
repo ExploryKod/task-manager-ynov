@@ -26,7 +26,7 @@ open-coverage-current:
 		if command -v xdg-open > /dev/null 2>&1; then \
 			xdg-open htmlcov/index.html; \
 		elif command -v open > /dev/null 2>&1; then \
-			open htmlcov/index.html; \²²
+			open htmlcov/index.html; \
 		elif command -v start > /dev/null 2>&1; then \
 			start htmlcov/index.html; \
 		else \
