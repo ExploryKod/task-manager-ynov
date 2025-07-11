@@ -1,51 +1,150 @@
 from datetime import datetime
 from enum import Enum
+from typing import Optional, Dict, Any
+from uuid import UUID, uuid4
+import re
 
 
 class Priority(Enum):
-    # TODO: Définissez les priorités (LOW, MEDIUM, HIGH, URGENT)
-    pass
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    URGENT = "urgent"
+    
+    def __str__(self) -> str:
+        return self.value
 
 
 class Status(Enum):
-    # TODO: Définissez les statuts (TODO, IN_PROGRESS, DONE, CANCELLED)
-    pass
+    TODO = "todo"
+    IN_PROGRESS = "in_progress"
+    DONE = "done"
+    CANCELLED = "cancelled"
+    
+    def __str__(self) -> str:
+        return self.value
 
 
 class Task:
     """Une tâche avec toutes ses propriétés"""
     
-    def __init__(self, title, description="", priority=Priority.MEDIUM):
-        # TODO: Validez les paramètres
-        # - title non vide
-        # - priority est bien une Priority
-        # TODO: Initialisez les attributs
-        # - id unique (utilisez time.time() ou uuid)
-        # - created_at avec datetime.now()
-        # - status à TODO par défaut
-        # - project_id à None
-        pass
+    MAX_TITLE_LENGTH = 100
+    MIN_TITLE_LENGTH = 1
     
-    def mark_completed(self):
-        # TODO: Changez le statut à DONE
-        # TODO: Ajoutez completed_at avec datetime.now()
-        pass
+    def __init__(
+        self, 
+        title: str, 
+        description: str = "", 
+        priority: Priority = Priority.MEDIUM
+    ) -> None:
+        self._validate_title(title)
+        self._validate_priority(priority)
+        
+        self.id: UUID = uuid4()
+        self.title: str = title.strip()
+        self.description: str = description.strip()
+        self.priority: Priority = priority
+        self.created_at: datetime = datetime.now()
+        self.status: Status = Status.TODO
+        self.completed_at: Optional[datetime] = None
+        self.project_id: Optional[UUID] = None
     
-    def update_priority(self, new_priority):
-        # TODO: Validez et mettez à jour la priorité
-        pass
+    def mark_completed(self) -> None:
+        if self.status == Status.DONE:
+            raise ValueError("Task is already completed")
+        
+        self.status = Status.DONE
+        self.completed_at = datetime.now()
     
-    def assign_to_project(self, project_id):
-        # TODO: Assignez la tâche à un projet
-        pass
+    def update_priority(self, new_priority: Priority) -> None:
+        if not isinstance(new_priority, Priority):
+            raise TypeError(f"Priority must be a Priority enum, got {type(new_priority)}")
+        
+        if self.status == Status.DONE:
+            raise ValueError("Cannot update priority of completed task")
+        
+        self.priority = new_priority
     
-    def to_dict(self):
-        # TODO: Retournez un dictionnaire pour la sérialisation JSON
-        # Gérez la conversion des Enum et datetime
-        pass
+    def assign_to_project(self, project_id: UUID) -> None:
+        if not isinstance(project_id, UUID):
+            raise TypeError(f"Project ID must be a UUID, got {type(project_id)}")
+        
+        self.project_id = project_id
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": str(self.id),
+            "title": self.title,
+            "description": self.description,
+            "priority": self.priority.value,
+            "status": self.status.value,
+            "created_at": self.created_at.isoformat(),
+            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "project_id": str(self.project_id) if self.project_id else None
+        }
     
     @classmethod
-    def from_dict(cls, data):
-        # TODO: Créez une Task depuis un dictionnaire
-        # Gérez la conversion des string vers Enum et datetime
-        pass
+    def from_dict(cls, data: Dict[str, Any]) -> "Task":
+        if not isinstance(data, dict):
+            raise TypeError("Data must be a dictionary")
+        
+        required_fields = ["id", "title", "priority", "status", "created_at"]
+        for field in required_fields:
+            if field not in data:
+                raise ValueError(f"Missing required field: {field}")
+        
+        task = cls.__new__(cls)
+        
+        task.id = UUID(data["id"])
+        task.title = data["title"]
+        task.description = data.get("description", "")
+        task.priority = Priority(data["priority"])
+        task.status = Status(data["status"])
+        task.created_at = datetime.fromisoformat(data["created_at"])
+        
+        task.completed_at = (
+            datetime.fromisoformat(data["completed_at"]) 
+            if data.get("completed_at") 
+            else None
+        )
+        
+        task.project_id = (
+            UUID(data["project_id"]) 
+            if data.get("project_id") 
+            else None
+        )
+        
+        return task
+    
+    def _validate_title(self, title: str) -> None:
+        if not isinstance(title, str):
+            raise TypeError(f"Title must be a string, got {type(title)}")
+        
+        if not title or not title.strip():
+            raise ValueError("Title cannot be empty or whitespace only")
+        
+        clean_title = title.strip()
+        
+        if len(clean_title) < self.MIN_TITLE_LENGTH:
+            raise ValueError(f"Title must be at least {self.MIN_TITLE_LENGTH} character")
+        
+        if len(clean_title) > self.MAX_TITLE_LENGTH:
+            raise ValueError(f"Title cannot exceed {self.MAX_TITLE_LENGTH} characters, got {len(clean_title)}")
+        
+        if re.search(r'[<>]', clean_title):
+            raise ValueError("Title contains invalid characters ('<', '>'). Please remove HTML tags for security")
+    
+    def _validate_priority(self, priority: Priority) -> None:
+        if not isinstance(priority, Priority):
+            raise TypeError(f"Priority must be a Priority enum, got {type(priority)}")
+    
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Task):
+            return False
+        return self.id == other.id
+    
+    def __hash__(self) -> int:
+        return hash(self.id)
+    
+    def __repr__(self) -> str:
+        return f"Task(id={self.id}, title='{self.title}', status={self.status.value})"
