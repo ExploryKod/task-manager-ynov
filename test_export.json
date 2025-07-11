@@ -1,0 +1,51 @@
+{
+  "tasks": [
+    {
+      "id": 1752240292.7330852,
+      "title": "Test Task 1",
+      "description": "Description 1",
+      "priority": "high",
+      "status": "done",
+      "created_at": "2025-07-11T15:24:52.733087",
+      "completed_at": "2025-07-11T15:24:52.733104",
+      "project_id": null
+    },
+    {
+      "id": 1752240292.7330978,
+      "title": "Test Task 2",
+      "description": "Description 2",
+      "priority": "medium",
+      "status": "todo",
+      "created_at": "2025-07-11T15:24:52.733098",
+      "completed_at": null,
+      "project_id": null
+    }
+  ],
+  "metadata": {
+    "total_tasks": 2,
+    "export_format": "json",
+    "exported_at": "2025-07-11T15:24:52.733133",
+    "include_statistics": true
+  },
+  "statistics": {
+    "total_tasks": 2,
+    "completed_tasks": 1,
+    "pending_tasks": 1,
+    "in_progress_tasks": 0,
+    "cancelled_tasks": 0,
+    "completion_rate": 50.0,
+    "priority_distribution": {
+      "low": 0,
+      "medium": 1,
+      "high": 1,
+      "urgent": 0
+    },
+    "status_distribution": {
+      "todo": 1,
+      "in_progress": 0,
+      "done": 1,
+      "cancelled": 0
+    },
+    "generated_at": "2025-07-11T15:24:52.733146"
+  }
+}

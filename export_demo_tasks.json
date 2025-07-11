@@ -1,0 +1,81 @@
+{
+  "tasks": [
+    {
+      "id": 1752240224.0503228,
+      "title": "Corriger bug critique production",
+      "description": "Bug empêchant les utilisateurs de se connecter",
+      "priority": "urgent",
+      "status": "done",
+      "created_at": "2025-07-11T15:23:44.050326",
+      "completed_at": "2025-07-11T15:23:44.050337",
+      "project_id": null
+    },
+    {
+      "id": 1752240224.0503435,
+      "title": "Développer API REST",
+      "description": "Développement de l'API pour l'application mobile",
+      "priority": "high",
+      "status": "in_progress",
+      "created_at": "2025-07-11T15:23:44.050344",
+      "completed_at": null,
+      "project_id": null
+    },
+    {
+      "id": 1752240224.0503483,
+      "title": "Rédiger documentation technique",
+      "description": "Documentation complète de l'architecture",
+      "priority": "medium",
+      "status": "todo",
+      "created_at": "2025-07-11T15:23:44.050348",
+      "completed_at": null,
+      "project_id": null
+    },
+    {
+      "id": 1752240224.0503507,
+      "title": "Optimiser performances CSS",
+      "description": "Améliorer le temps de chargement des pages",
+      "priority": "low",
+      "status": "todo",
+      "created_at": "2025-07-11T15:23:44.050350",
+      "completed_at": null,
+      "project_id": null
+    },
+    {
+      "id": 1752240224.0503523,
+      "title": "Configurer environnement de test",
+      "description": "Mise en place de l'environnement de tests automatisés",
+      "priority": "medium",
+      "status": "done",
+      "created_at": "2025-07-11T15:23:44.050352",
+      "completed_at": "2025-07-11T15:23:44.050354",
+      "project_id": null
+    }
+  ],
+  "metadata": {
+    "total_tasks": 5,
+    "export_format": "json",
+    "exported_at": "2025-07-11T15:23:44.050411",
+    "include_statistics": true
+  },
+  "statistics": {
+    "total_tasks": 5,
+    "completed_tasks": 2,
+    "pending_tasks": 2,
+    "in_progress_tasks": 1,
+    "cancelled_tasks": 0,
+    "completion_rate": 40.0,
+    "priority_distribution": {
+      "low": 1,
+      "medium": 2,
+      "high": 1,
+      "urgent": 1
+    },
+    "status_distribution": {
+      "todo": 2,
+      "in_progress": 1,
+      "done": 2,
+      "cancelled": 0
+    },
+    "generated_at": "2025-07-11T15:23:44.050439"
+  }
+}

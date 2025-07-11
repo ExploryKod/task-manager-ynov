@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch, mock_open
+from unittest.mock import patch, mock_open, Mock
 import json
 import tempfile
 import os
@@ -640,4 +640,152 @@ class TestTaskManagerStorageValidation:
             self.manager._validate_json_file_limits()
         except ValueError:
             pytest.fail("Should only count .json files for limit validation")
-# Nouveaux tests ajoutés
+
+
+class TestTaskManagerExport:
+    """Tests des fonctionnalités d'export du TaskManager"""
+
+    def setup_method(self):
+        fd, temp_path = tempfile.mkstemp(suffix='.json')
+        os.close(fd)
+        self.manager = TaskManager(temp_path)
+        self.temp_path = temp_path
+        
+        # Ajouter quelques tâches de test
+        self.manager.add_task("Task 1", "Description 1", Priority.HIGH)
+        self.manager.add_task("Task 2", "Description 2", Priority.MEDIUM)
+
+    def teardown_method(self):
+        try:
+            os.unlink(self.temp_path)
+        except OSError:
+            pass
+
+    @patch('src.task_manager.services.ExportService.export_tasks')
+    def test_export_tasks_should_delegate_to_export_service(self, mock_export):
+        """Test que export_tasks délègue au service d'export"""
+        mock_export.return_value = True
+        
+        result = self.manager.export_tasks("test.json", "json", True)
+        
+        assert result is True
+        mock_export.assert_called_once()
+        args, kwargs = mock_export.call_args
+        assert args[0] == self.manager._tasks  # Liste des tâches
+        assert args[1] == "test.json"          # Nom du fichier
+        assert args[2] == "json"               # Format
+        assert args[3] is True                 # Include statistics
+
+    @patch('src.task_manager.services.ExportService.export_tasks')
+    def test_export_tasks_with_default_parameters(self, mock_export):
+        """Test export_tasks avec paramètres par défaut"""
+        mock_export.return_value = True
+        
+        result = self.manager.export_tasks("test_default.json")
+        
+        assert result is True
+        args, kwargs = mock_export.call_args
+        assert args[2] == "json"  # Format par défaut
+        assert args[3] is True    # Include statistics par défaut
+
+    @patch('src.task_manager.services.ExportService.export_tasks')
+    def test_export_tasks_should_pass_current_tasks(self, mock_export):
+        """Test que export_tasks passe les tâches actuelles"""
+        mock_export.return_value = True
+        
+        # Ajouter une tâche supplémentaire
+        self.manager.add_task("Additional Task")
+        
+        self.manager.export_tasks("test_current.json")
+        
+        args, kwargs = mock_export.call_args
+        tasks_passed = args[0]
+        assert len(tasks_passed) == 3  # 2 tâches initiales + 1 ajoutée
+
+    @patch('src.task_manager.services.ExportService.export_tasks')
+    def test_export_tasks_should_handle_export_service_errors(self, mock_export):
+        """Test gestion des erreurs du service d'export"""
+        mock_export.side_effect = ValueError("Export error")
+        
+        with pytest.raises(ValueError, match="Export error"):
+            self.manager.export_tasks("test_error.json")
+
+    @patch('src.task_manager.services.ExportService.get_supported_formats')
+    def test_get_export_formats_should_delegate_to_export_service(self, mock_get_formats):
+        """Test que get_export_formats délègue au service d'export"""
+        expected_formats = ['json', 'xml', 'xlsx', 'excel']
+        mock_get_formats.return_value = expected_formats
+        
+        result = self.manager.get_export_formats()
+        
+        assert result == expected_formats
+        mock_get_formats.assert_called_once()
+
+    @patch('src.task_manager.services.ExportService')
+    def test_export_tasks_creates_new_export_service_instance(self, mock_export_service_class):
+        """Test que export_tasks crée une nouvelle instance d'ExportService"""
+        mock_service_instance = Mock()
+        mock_service_instance.export_tasks.return_value = True
+        mock_export_service_class.return_value = mock_service_instance
+        
+        self.manager.export_tasks("test_instance.json")
+        
+        # Vérifier qu'une nouvelle instance est créée
+        mock_export_service_class.assert_called_once()
+        # Vérifier que la méthode export_tasks est appelée sur l'instance
+        mock_service_instance.export_tasks.assert_called_once()
+
+    @patch('src.task_manager.services.ExportService')
+    def test_get_export_formats_creates_new_export_service_instance(self, mock_export_service_class):
+        """Test que get_export_formats crée une nouvelle instance d'ExportService"""
+        mock_service_instance = Mock()
+        mock_service_instance.get_supported_formats.return_value = ['json', 'xml']
+        mock_export_service_class.return_value = mock_service_instance
+        
+        self.manager.get_export_formats()
+        
+        # Vérifier qu'une nouvelle instance est créée
+        mock_export_service_class.assert_called_once()
+        # Vérifier que la méthode get_supported_formats est appelée sur l'instance
+        mock_service_instance.get_supported_formats.assert_called_once()
+
+    @patch('src.task_manager.services.ExportService.export_tasks')
+    def test_export_tasks_with_different_formats(self, mock_export):
+        """Test export_tasks avec différents formats"""
+        mock_export.return_value = True
+        formats_to_test = ["json", "xml", "xlsx", "excel"]
+        
+        for fmt in formats_to_test:
+            self.manager.export_tasks(f"test.{fmt}", fmt)
+            
+            # Vérifier que le format correct est passé
+            args, kwargs = mock_export.call_args
+            assert args[2] == fmt
+
+    @patch('src.task_manager.services.ExportService.export_tasks')
+    def test_export_tasks_with_statistics_flag(self, mock_export):
+        """Test export_tasks avec flag statistiques"""
+        mock_export.return_value = True
+        
+        # Test avec statistiques
+        self.manager.export_tasks("test_with_stats.json", include_statistics=True)
+        args, kwargs = mock_export.call_args
+        assert args[3] is True
+        
+        # Test sans statistiques
+        self.manager.export_tasks("test_without_stats.json", include_statistics=False)
+        args, kwargs = mock_export.call_args
+        assert args[3] is False
+
+    @patch('src.task_manager.services.ExportService.export_tasks')
+    def test_export_tasks_return_value_propagation(self, mock_export):
+        """Test que export_tasks propage la valeur de retour du service"""
+        # Test avec succès
+        mock_export.return_value = True
+        result = self.manager.export_tasks("test_success.json")
+        assert result is True
+        
+        # Test avec échec
+        mock_export.return_value = False
+        result = self.manager.export_tasks("test_failure.json")
+        assert result is False

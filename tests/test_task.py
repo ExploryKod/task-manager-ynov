@@ -306,3 +306,18 @@ class TestTaskSerialization:
         assert task.__eq__("not a task") == False
         assert task.__eq__(123) == False
         assert task.__eq__(None) == False
+
+    def test_task_creation_with_min_length_validation(self):
+        """Test validation longueur minimale titre"""
+        # Temporairement changer MIN_TITLE_LENGTH pour tester la ligne 134
+        original_min_length = Task.MIN_TITLE_LENGTH
+        try:
+            Task.MIN_TITLE_LENGTH = 2
+            
+            # Titre trop court après strip
+            with pytest.raises(ValueError, match="Title must be at least 2 character"):
+                Task("a")  # Longueur 1, moins que MIN_TITLE_LENGTH=2
+                
+        finally:
+            # Restaurer la valeur originale
+            Task.MIN_TITLE_LENGTH = original_min_length
