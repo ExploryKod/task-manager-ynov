@@ -17,7 +17,7 @@ Commande Make pour lire ce rapport : `make open-coverage-first`
 Pour lire ce rapport dans votre navigateur aprés le clone du repo, aller là :<br> `<votre-chemin-de-fichier>/task-manager-ynov/rapports_couvertures/premier/htmlcov/index.html`<br><br>
 Exemple sur une machine Linux : `file:///home/<votre-nom>/<chemin-depuis-dossier-utilisateur>/task-manager-ynov/rapports_couvertures/premier/htmlcov/index.html`
 
-[Dernier rapport avec couverture 95%](./rapports_couverture/couverture_95percent/htmlcov/)
+[Rapport avec couverture 95%](./rapports_couverture/couverture_95percent/htmlcov/)
 
 Commande Make pour lire ce rapport : `make open-coverage-final`
 
@@ -27,6 +27,9 @@ Exemple sur une machine Linux : `file:///home/<votre-nom>/<chemin-depuis-dossier
 Dernier test de couverture effectué : 
 
 <img src="./last_couverture_test.png" alt="dernière couverture">
+
+Notes : j'ai ajouté des test pour la nouvelle fonctionnalité Excel, le rapport qui les inclu est dans le `htmlcov` à la racine (pas dans les sauvegarde), c'est le tout dernier rapport.
+Commande make : `make open-coverage-current`
 
 ## 📋 Description
 
