@@ -12,6 +12,10 @@ Mes rapports de couvertures de test sauvegardées:
 [Premier rapport avec couverture insuffisante](./rapports_couverture/premier/htmlcov/)
 [Dernier rapport avec couverture 95%](./rapports_couverture/couverture_95percent/htmlcov/)
 
+Dernier test de couverture effectué : 
+
+<img src="./last_couverture_test.png" alt="dernière couverture">
+
 ## 📋 Description
 
 TaskManager est un système de gestion de tâches complet qui permet de :
