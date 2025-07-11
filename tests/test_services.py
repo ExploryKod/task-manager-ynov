@@ -65,6 +65,11 @@ class TestEmailService:
         with pytest.raises(ValueError, match="Invalid email format: missing extension"):
             self.email_service.send_task_reminder("user@domain", "Task", datetime.now())
 
+    def test_send_task_reminder_with_missing_local_part_should_raise_error(self):
+        """Test envoi rappel partie locale manquante lève erreur"""
+        with pytest.raises(ValueError, match="Invalid email format: missing local part"):
+            self.email_service.send_task_reminder("@domain.com", "Task", datetime.now())
+
     def test_send_task_reminder_with_too_long_email_should_raise_error(self):
         """Test envoi rappel email trop long lève erreur"""
         long_email = "a" * 350 + "@domain.com"

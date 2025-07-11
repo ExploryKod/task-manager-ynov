@@ -265,10 +265,44 @@ class TestTaskSerialization:
         assert hash(task1) == hash(task2)
 
     def test_task_repr_should_contain_meaningful_info(self):
-        """Test représentation string tâche"""
-        repr_str = repr(self.task)
+        """Test représentation string contient infos utiles"""
+        task = Task("Test task")
+        repr_str = repr(task)
         
-        assert "Task" in repr_str
-        assert str(self.task.id) in repr_str
-        assert self.task.title in repr_str
-        assert self.task.status.value in repr_str
+        assert "Task(id=" in repr_str
+        assert "title='Test task'" in repr_str
+        assert "status=todo" in repr_str
+
+    def test_status_enum_string_representation(self):
+        """Test représentation string des énums Status"""
+        assert str(Status.TODO) == "todo"
+        assert str(Status.DONE) == "done"
+        assert str(Status.IN_PROGRESS) == "in_progress"
+        assert str(Status.CANCELLED) == "cancelled"
+
+    def test_from_dict_with_invalid_priority_should_raise_error(self):
+        """Test from_dict avec priorité invalide lève erreur"""
+        invalid_data = {
+            "id": 123.456,
+            "title": "Test task",
+            "priority": "invalid_priority",  # Priorité qui n'existe pas
+            "status": "todo",
+            "created_at": "2024-01-01T00:00:00.000000"
+        }
+        
+        with pytest.raises(ValueError, match="Invalid priority: invalid_priority"):
+            Task.from_dict(invalid_data)
+
+    def test_task_creation_with_invalid_priority_type_should_raise_error(self):
+        """Test création tâche avec type de priorité invalide"""
+        with pytest.raises(TypeError, match="Priority must be a Priority enum"):
+            Task("Test task", "Description", "invalid_string_priority")
+
+    def test_task_equality_with_non_task_object_should_return_false(self):
+        """Test égalité tâche avec objet non-Task retourne False"""
+        task = Task("Test task")
+        
+        # Ligne 148 : return False dans __eq__ quand l'autre objet n'est pas une Task
+        assert task.__eq__("not a task") == False
+        assert task.__eq__(123) == False
+        assert task.__eq__(None) == False

@@ -269,6 +269,16 @@ class TestTaskManagerPersistence:
         with pytest.raises(ValueError, match="Maximum number of JSON files exceeded"):
             self.manager.save_to_file("new_file.json")
 
+    @patch('builtins.open', new_callable=mock_open, read_data='{"tasks": "not_an_array"}')
+    @patch('json.load')
+    @patch('os.path.exists', return_value=True)
+    def test_load_from_file_with_invalid_tasks_format_should_raise_error(self, mock_exists, mock_json_load, mock_file):
+        """Test chargement avec format tâches invalide (pas un array)"""
+        mock_json_load.return_value = {"tasks": "not_an_array"}
+        
+        with pytest.raises(RuntimeError, match="Unexpected error while loading tasks.*Invalid tasks format"):
+            self.manager.load_from_file("invalid.json")
+
 
 class TestTaskManagerStatistics:
     """Tests de génération de statistiques"""
@@ -367,3 +377,267 @@ class TestTaskManagerStatistics:
         stats = self.manager.get_statistics()
         
         assert stats["completion_rate"] == expected_rate
+
+
+class TestTaskManagerPersistenceAdvanced:
+    """Tests avancés de persistence pour améliorer la couverture"""
+
+    def setup_method(self):
+        fd, temp_path = tempfile.mkstemp(suffix='.json')
+        os.close(fd)
+        self.manager = TaskManager(temp_path)
+        self.temp_path = temp_path
+
+    def teardown_method(self):
+        try:
+            os.unlink(self.temp_path)
+        except OSError:
+            pass
+
+    @patch('builtins.open', new_callable=mock_open, read_data='{"invalid": "structure"}')
+    @patch('json.load')
+    def test_load_from_file_with_invalid_json_structure(self, mock_json_load, mock_file):
+        """Test chargement avec structure JSON invalide (pas un dict)"""
+        mock_json_load.return_value = ["not", "a", "dict"]
+        
+        with pytest.raises(ValueError, match="Invalid JSON structure.*expected object"):
+            self.manager.load_from_file("invalid.json")
+
+    @patch('builtins.open', new_callable=mock_open, read_data='{"tasks": "not_an_array"}')
+    @patch('json.load')
+    def test_load_from_file_with_invalid_tasks_format(self, mock_json_load, mock_file):
+        """Test chargement avec format tâches invalide (pas un array)"""
+        mock_json_load.return_value = {"tasks": "not_an_array"}
+        
+        with pytest.raises(ValueError, match="Invalid tasks format.*expected array"):
+            self.manager.load_from_file("invalid.json")
+
+    @patch('builtins.open', new_callable=mock_open)
+    @patch('json.load')
+    def test_load_from_file_with_malformed_task_data(self, mock_json_load, mock_file):
+        """Test chargement avec données de tâche malformées"""
+        mock_json_load.return_value = {
+            "tasks": [{"incomplete": "task_data"}]  # Manque les champs requis
+        }
+        
+        with pytest.raises(ValueError, match="Invalid task data at index 0"):
+            self.manager.load_from_file("malformed.json")
+
+    @patch('builtins.open', side_effect=PermissionError("Permission denied"))
+    def test_load_from_file_permission_denied(self, mock_file):
+        """Test chargement avec permission refusée"""
+        with pytest.raises(PermissionError, match="Cannot read file.*Permission denied"):
+            self.manager.load_from_file("no_permission.json")
+
+    @patch('builtins.open', side_effect=OSError("I/O error"))
+    def test_save_to_file_os_error(self, mock_file):
+        """Test sauvegarde avec erreur système"""
+        with pytest.raises(OSError, match="File system error while saving"):
+            self.manager.save_to_file("error.json")
+
+    @patch('builtins.open', side_effect=RuntimeError("Unexpected error"))
+    def test_save_to_file_unexpected_error(self, mock_file):
+        """Test sauvegarde avec erreur inattendue"""
+        with pytest.raises(RuntimeError, match="Unexpected error while saving"):
+            self.manager.save_to_file("error.json")
+
+
+class TestTaskManagerUtilityMethods:
+    """Tests des méthodes utilitaires pour améliorer la couverture"""
+
+    def setup_method(self):
+        fd, temp_path = tempfile.mkstemp(suffix='.json')
+        os.close(fd)
+        self.manager = TaskManager(temp_path)
+        self.temp_path = temp_path
+
+    def teardown_method(self):
+        try:
+            os.unlink(self.temp_path)
+        except OSError:
+            pass
+
+    def test_get_all_tasks_returns_copy(self):
+        """Test que get_all_tasks retourne une copie, pas la référence"""
+        task_id = self.manager.add_task("Test task")
+        
+        tasks_copy = self.manager.get_all_tasks()
+        tasks_copy.clear()  # Modifier la copie
+        
+        # La liste originale ne doit pas être affectée
+        assert len(self.manager.get_all_tasks()) == 1
+
+    def test_clear_all_tasks_empties_manager(self):
+        """Test que clear_all_tasks vide complètement le gestionnaire"""
+        self.manager.add_task("Task 1")
+        self.manager.add_task("Task 2")
+        self.manager.add_task("Task 3")
+        
+        assert len(self.manager.get_all_tasks()) == 3
+        
+        self.manager.clear_all_tasks()
+        
+        assert len(self.manager.get_all_tasks()) == 0
+        assert self.manager.get_task_count() == 0
+
+    def test_get_task_count_accuracy(self):
+        """Test précision du compteur de tâches"""
+        assert self.manager.get_task_count() == 0
+        
+        self.manager.add_task("Task 1")
+        assert self.manager.get_task_count() == 1
+        
+        task_id = self.manager.add_task("Task 2")
+        assert self.manager.get_task_count() == 2
+        
+        self.manager.delete_task(task_id)
+        assert self.manager.get_task_count() == 1
+
+    def test_len_magic_method(self):
+        """Test méthode magique __len__"""
+        assert len(self.manager) == 0
+        
+        self.manager.add_task("Task")
+        assert len(self.manager) == 1
+        
+        # Vérifier cohérence avec get_task_count
+        assert len(self.manager) == self.manager.get_task_count()
+
+    def test_iter_magic_method(self):
+        """Test méthode magique __iter__"""
+        task_id1 = self.manager.add_task("Task 1")
+        task_id2 = self.manager.add_task("Task 2")
+        
+        # Tester l'itération
+        task_ids_found = []
+        for task in self.manager:
+            task_ids_found.append(task.id)
+        
+        assert task_id1 in task_ids_found
+        assert task_id2 in task_ids_found
+        assert len(task_ids_found) == 2
+
+    def test_repr_magic_method(self):
+        """Test méthode magique __repr__"""
+        repr_str = repr(self.manager)
+        
+        assert "TaskManager" in repr_str
+        assert "tasks=0" in repr_str
+        assert self.temp_path in repr_str
+        
+        self.manager.add_task("Test")
+        repr_str = repr(self.manager)
+        assert "tasks=1" in repr_str
+
+    def test_get_current_time_iso_format(self):
+        """Test format ISO du timestamp"""
+        # Accéder à la méthode privée pour test
+        timestamp = self.manager._get_current_time_iso()
+        
+        # Vérifier format ISO (doit contenir 'T' et être parseable)
+        assert 'T' in timestamp
+        
+        # Vérifier que c'est un timestamp valide
+        from datetime import datetime
+        parsed_time = datetime.fromisoformat(timestamp)
+        assert isinstance(parsed_time, datetime)
+
+
+class TestTaskManagerEdgeCases:
+    """Tests des cas limites et validations d'erreur"""
+
+    def setup_method(self):
+        fd, temp_path = tempfile.mkstemp(suffix='.json')
+        os.close(fd)
+        self.manager = TaskManager(temp_path)
+        self.temp_path = temp_path
+
+    def teardown_method(self):
+        try:
+            os.unlink(self.temp_path)
+        except OSError:
+            pass
+
+    def test_delete_task_with_invalid_id_types(self):
+        """Test suppression avec types d'ID invalides"""
+        # Test avec chaîne non convertible
+        assert self.manager.delete_task("invalid_string") == False
+        
+        # Test avec type complexe
+        assert self.manager.delete_task({"invalid": "dict"}) == False
+        
+        # Test avec liste
+        assert self.manager.delete_task([1, 2, 3]) == False
+
+    @patch('os.makedirs', side_effect=OSError("Cannot create directory"))
+    def test_validate_storage_environment_creation_error(self, mock_makedirs):
+        """Test création d'environnement avec erreur"""
+        # Créer un gestionnaire avec un chemin qui n'existe pas
+        fake_path = "/fake/path/that/does/not/exist/tasks.json"
+        
+        with pytest.raises(OSError, match="Cannot create storage directory"):
+            manager = TaskManager(fake_path)
+            manager._validate_storage_environment()
+
+    @patch('os.listdir', side_effect=OSError("Permission denied"))
+    def test_validate_json_file_limits_os_error_ignored(self, mock_listdir):
+        """Test validation limites avec erreur OS ignorée"""
+        # Cette méthode doit passer silencieusement même avec OSError
+        try:
+            self.manager._validate_json_file_limits()
+            # Si on arrive ici, c'est bon (l'exception OSError est ignorée)
+        except OSError:
+            pytest.fail("OSError should be silently ignored in _validate_json_file_limits")
+
+
+class TestTaskManagerStorageValidation:
+    """Tests de validation du stockage"""
+
+    def setup_method(self):
+        fd, temp_path = tempfile.mkstemp(suffix='.json')
+        os.close(fd)
+        self.manager = TaskManager(temp_path)
+        self.temp_path = temp_path
+
+    def teardown_method(self):
+        try:
+            os.unlink(self.temp_path)
+        except OSError:
+            pass
+
+    @patch('os.path.exists', return_value=False)
+    @patch('os.makedirs')
+    def test_validate_storage_environment_creates_directory(self, mock_makedirs, mock_exists):
+        """Test création de répertoire pour stockage"""
+        self.manager._validate_storage_environment()
+        
+        # Vérifier que makedirs a été appelé
+        mock_makedirs.assert_called_once()
+
+    @patch('os.listdir')
+    def test_validate_json_file_limits_within_limit(self, mock_listdir):
+        """Test validation avec nombre de fichiers dans la limite"""
+        # Simuler 50 fichiers JSON (bien en dessous de la limite de 150)
+        mock_listdir.return_value = [f"file_{i}.json" for i in range(50)]
+        
+        # Ne doit pas lever d'exception
+        try:
+            self.manager._validate_json_file_limits()
+        except ValueError:
+            pytest.fail("Should not raise ValueError when within file limits")
+
+    @patch('os.listdir')
+    def test_validate_json_file_limits_mixed_files(self, mock_listdir):
+        """Test validation avec mélange de fichiers"""
+        # Mélanger fichiers JSON et non-JSON
+        mock_listdir.return_value = [
+            "file1.json", "file2.txt", "file3.json", 
+            "document.pdf", "file4.json"
+        ]
+        
+        # Ne doit pas lever d'exception (seulement 3 fichiers JSON)
+        try:
+            self.manager._validate_json_file_limits()
+        except ValueError:
+            pytest.fail("Should only count .json files for limit validation")
+# Nouveaux tests ajoutés
