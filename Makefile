@@ -18,7 +18,28 @@ clean:
 	find . -type f -name '*.pyc' -delete
 
 lint:
-	python -m py_compile $(find src/ -name '*.py')
+	@echo "Vérification de la syntaxe Python..."
+	@files=$$(find src/ -name '*.py'); \
+	if [ -z "$$files" ]; then \
+		echo "Aucun fichier Python trouvé dans src/"; \
+	else \
+		echo "Fichiers à vérifier:"; \
+		for file in $$files; do \
+			echo "  - $$file"; \
+		done; \
+		echo ""; \
+		echo "Compilation des fichiers..."; \
+		for file in $$files; do \
+			if python -m py_compile "$$file" 2>/dev/null; then \
+				echo "✓ $$file"; \
+			else \
+				echo "✗ $$file - ERREUR DE SYNTAXE"; \
+				python -m py_compile "$$file"; \
+			fi; \
+		done; \
+		echo ""; \
+		echo "Vérification terminée."; \
+	fi
 
 open-coverage-current:
 	@echo "Ouverture du rapport de couverture actuel..."
