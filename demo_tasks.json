@@ -1,0 +1,48 @@
+{
+  "tasks": [
+    {
+      "id": 1752230487.413502,
+      "title": "Corriger bug critique en production",
+      "description": "Le serveur principal ne répond plus",
+      "priority": "urgent",
+      "status": "done",
+      "created_at": "2025-07-11T12:41:27.413505",
+      "completed_at": "2025-07-11T12:41:27.413564",
+      "project_id": null
+    },
+    {
+      "id": 1752230487.4135327,
+      "title": "Préparer présentation client",
+      "description": "Présentation pour le projet Q1",
+      "priority": "high",
+      "status": "todo",
+      "created_at": "2025-07-11T12:41:27.413533",
+      "completed_at": null,
+      "project_id": null
+    },
+    {
+      "id": 1752230487.4135404,
+      "title": "Mettre à jour documentation",
+      "description": "Documentation API utilisateur",
+      "priority": "medium",
+      "status": "done",
+      "created_at": "2025-07-11T12:41:27.413540",
+      "completed_at": "2025-07-11T12:41:27.413568",
+      "project_id": null
+    },
+    {
+      "id": 1752230487.4135451,
+      "title": "Optimiser les performances",
+      "description": "Améliorer temps de réponse",
+      "priority": "low",
+      "status": "todo",
+      "created_at": "2025-07-11T12:41:27.413545",
+      "completed_at": null,
+      "project_id": null
+    }
+  ],
+  "metadata": {
+    "total_tasks": 4,
+    "saved_at": "2025-07-11T12:41:27.413724"
+  }
+}
