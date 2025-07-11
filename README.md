@@ -9,7 +9,8 @@ Mes réponses aux questions de la phase 10 sur la couverture de test : voir le f
 [cliquer ici](./AnalyseConception.md)
 
 Mes rapports de couvertures de test sauvegardées: 
-[Premier rapport avec couverture insuffisante](./)
+[Premier rapport avec couverture insuffisante](./rapports_couverture/premier/htmlcov/)
+[Dernier rapport avec couverture 95%](./rapports_couverture/couverture_95percent/htmlcov/)
 
 ## 📋 Description
 
